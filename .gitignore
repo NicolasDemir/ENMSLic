@@ -38,3 +38,6 @@
 /.vs/ENMSLic/v17
 /ENMSLicMgr/.vs/ENMSLicMgr/DesignTimeBuild
 /ENMSLicMgr/ClientDotNet/bin/Debug/net7.0-windows
+/ENMSLicMgr/LicGen/x64/Debug
+/ENMSLicMgr/.vs/ProjectEvaluation
+/.vs/VSWorkspaceState.json
