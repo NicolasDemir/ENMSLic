@@ -30,8 +30,8 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -183,7 +183,11 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Cryptor.h" />
+    <ClInclude Include="EncryptionMgr.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="HashAlgorithms.h" />
+    <ClInclude Include="IniFile.h" />
     <ClInclude Include="LicGen.h" />
     <ClInclude Include="LicGenDlg.h" />
     <ClInclude Include="pch.h" />
@@ -192,6 +196,9 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Cryptor.cpp" />
+    <ClCompile Include="HashMD5.cpp" />
+    <ClCompile Include="IniFile.cpp" />
     <ClCompile Include="LicGen.cpp" />
     <ClCompile Include="LicGenDlg.cpp" />
     <ClCompile Include="pch.cpp">

@@ -3,7 +3,8 @@
 //
 
 #include "pch.h"
-#include "framework.h"
+#include "inifile.h"
+#include "SoftKeyHelper.h"
 #include "LicGen.h"
 #include "LicGenDlg.h"
 
