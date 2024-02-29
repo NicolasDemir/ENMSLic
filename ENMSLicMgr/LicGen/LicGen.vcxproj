@@ -188,6 +188,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="HashAlgorithms.h" />
     <ClInclude Include="IniFile.h" />
+    <ClInclude Include="IniFileMgr.h" />
     <ClInclude Include="LicGen.h" />
     <ClInclude Include="LicGenDlg.h" />
     <ClInclude Include="pch.h" />
@@ -199,6 +200,7 @@
     <ClCompile Include="Cryptor.cpp" />
     <ClCompile Include="HashMD5.cpp" />
     <ClCompile Include="IniFile.cpp" />
+    <ClCompile Include="IniFileMgr.cpp" />
     <ClCompile Include="LicGen.cpp" />
     <ClCompile Include="LicGenDlg.cpp" />
     <ClCompile Include="pch.cpp">
