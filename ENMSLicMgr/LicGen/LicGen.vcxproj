@@ -189,11 +189,13 @@
     <ClInclude Include="HashAlgorithms.h" />
     <ClInclude Include="IniFile.h" />
     <ClInclude Include="IniFileMgr.h" />
+    <ClInclude Include="licenseerror.h" />
     <ClInclude Include="LicGen.h" />
     <ClInclude Include="LicGenDlg.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SoftKeyHelper.h" />
+    <ClInclude Include="SoftLicenseMgr.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
@@ -210,6 +212,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SoftKeyHelper.cpp" />
+    <ClCompile Include="SoftLicenseMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LicGen.rc" />

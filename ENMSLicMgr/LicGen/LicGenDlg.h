@@ -28,7 +28,10 @@ public:
 	CString GetEncryptedString(const CString& incput, BOOL bEncrypt = TRUE);
 
 
+	void OpenFileLocation(const CString& szFilePath);
+
 	CSoftKeyHelper m_akey;
+	CSoftLicenseMgr m_softLicMgr;
 
 
 // Implementation

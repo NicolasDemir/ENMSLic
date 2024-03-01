@@ -157,20 +157,3 @@ std::string sha256(const std::string& input) {
 
     return ss.str();
 }
-
-/*int main() {
-    string filename = "example.ini";
-    int error = 0;
-    map<string, map<string, string>> iniData = parseIniFile("", filename, error);
-
-    // Accessing data
-    for (const auto& section : iniData) {
-        cout << "[" << section.first << "]" << endl;
-        for (const auto& entry : section.second) {
-            cout << entry.first << " = " << entry.second << endl;
-        }
-    }
-
-    return 0;
-}
-*/

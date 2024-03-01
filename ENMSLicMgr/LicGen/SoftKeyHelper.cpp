@@ -546,3 +546,5 @@ CString CSoftKeyHelper::CStringFromGUID(const GUID& guid)
     ::StringFromGUID2(guid, wszGUID, _countof(wszGUID));
     return CString(wszGUID);
 }
+
+

@@ -4,13 +4,33 @@
 
 #include "pch.h"
 #include "inifile.h"
+#include "licenseerror.h"
 #include "SoftKeyHelper.h"
+
 #include "LicGen.h"
-#include "LicGenDlg.h"
+
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
+#include <iostream>
+#include <iomanip>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <cstdint>
+#include <map>
+
+
+using namespace std;
+
+#include "inifilemgr.h"
+#include "SoftLicenseMgr.h"
+#include "LicGenDlg.h"
+
 
 
 // CLicGenApp

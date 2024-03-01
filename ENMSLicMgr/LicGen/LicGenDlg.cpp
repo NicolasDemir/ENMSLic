@@ -4,10 +4,7 @@
 
 #include "pch.h"
 #include "inifile.h"
-#include "SoftKeyHelper.h"
 #include "LicGen.h"
-#include "LicGenDlg.h"
-#include "afxdialogex.h"
 
 #include "EncryptionMgr.h"
 
@@ -22,8 +19,26 @@
 #include <iomanip>
 #include <atlstr.h> 
 
+#include "licenseerror.h"
+#include "inifilemgr.h"
+#include "SoftLicenseMgr.h"
+#include "SoftKeyHelper.h"
+#include "LicGenDlg.h"
+
+#include "afxdialogex.h"
 
 // CAboutDlg dialog used for App About
+std::string CStringToString(const CString& cstr)
+{
+    CT2CA pszConvertedAnsi(cstr);
+    return std::string(pszConvertedAnsi);
+}
+
+CString StringToCString(const std::string& str)
+{
+    return CString(str.c_str());
+}
+
 
 class CAboutDlg : public CDialogEx
 {
@@ -297,72 +312,37 @@ CString CLicGenDlg::GetUserSelectedFolder()
     return path;
 }
 
+void CLicGenDlg::OpenFileLocation(const CString& szfile)
+{
+    int n = szfile.ReverseFind(_T('\\'));
+    CString	szFilePath = szfile.Left(n);
+
+    int i = (int)::ShellExecute(m_hWnd, _T("explore"), szFilePath, NULL, NULL, SW_SHOWNORMAL);
+}
+
 
 void CLicGenDlg::OnBnClickedButtonCreate()
 {
     UpdateData(TRUE);
 
-    CString szfile = GetWorkingDirectory() + _T("\\") + _T("license-'") + m_serial+ _T("'.dat");
-  
-    CStdioFile afile(szfile, CFile::modeWrite | CFile::modeCreate | CFile::shareDenyWrite);
-    afile.WriteString(_T("[General]\r\n"));
-    afile.WriteString(_T("licenseNumber=") + m_serial + _T("\r\n"));
-    afile.WriteString(_T("version=1\r\n"));
-
-    CString szline;
-    szline.Format(_T("meters=%d\r\n"), m_meters);
-    afile.WriteString(szline);
-
-    szline.Format(_T("users=%d\r\n"), m_users);
-    afile.WriteString(szline);
-
-    szline.Format(_T("connections=%d\r\n"), m_connections);
-    afile.WriteString(szline);
-
-    afile.WriteString(_T("product=1\r\n"));
-    afile.WriteString(_T("update=1\r\n"));
-    afile.WriteString(_T("key=\r\n"));
+    m_softLicMgr.m_licfeatures.m_serial = CStringToString(m_serial);
+    m_softLicMgr.m_licfeatures.m_product = 1;
+    m_softLicMgr.m_licfeatures.m_update = 1;
+    m_softLicMgr.m_licfeatures.m_version= 1;
+    m_softLicMgr.m_licfeatures.m_meters = m_meters;
+    m_softLicMgr.m_licfeatures.m_users = m_users;
+    m_softLicMgr.m_licfeatures.m_connections = m_connections;
+    m_softLicMgr.m_licfeatures.m_signature = CStringToString(m_signature);
     
-    CString szBlank;
+    string szFolder = CStringToString(GetWorkingDirectory());
 
-    afile.WriteString(_T("[Features]\r\n"));
+    int nresult = m_softLicMgr.GenerateLicenseFile(szFolder);
 
-    // Generating a new GUID
-    GUID guid;
-    
-    CString strGuid;
-
-    // Converting GUID to string
-    CoCreateGuid(&guid);
-
-    // Converting GUID to CString
-    strGuid.Format(_T("{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}"),
-        guid.Data1, guid.Data2, guid.Data3,
-        guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3],
-        guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
-
-
-    szBlank = GetEncryptedString(strGuid);
-    afile.WriteString(_T("S1=") + szBlank + _T("\r\n"));
-  
-    afile.WriteString(_T("T1=") + m_signature+ _T("\r\n"));
-    
-   
-    szBlank = GetEncryptedString(m_akey.m_sMachine);
-    afile.WriteString(_T("S2=") + szBlank + _T("\r\n"));
-  
-    szBlank.Format(_T("lic1;%s;%d;%d;%d;1;1"), m_serial, m_meters, m_users, m_connections);
-
-    afile.WriteString(_T("F1=") + GetEncryptedString(szBlank) + _T("\r\n"));
-    afile.WriteString(_T("key=\r\n"));
-    
-    afile.Flush();
-    afile.Close();
-
-    int n = szfile.ReverseFind(_T('\\'));
-    CString	szFilePath = szfile.Left(n);
-
-    int i = (int)::ShellExecute(m_hWnd, _T("explore"), szFilePath, NULL, NULL, SW_SHOWNORMAL);
+    if (nresult == ERROR_NOERROR)
+    {
+        CString szfile = GetWorkingDirectory() + _T("\\") + _T("lic-'") + m_serial + _T("'.dat");
+        OpenFileLocation(szfile);
+    }
 }
 
 
@@ -442,17 +422,6 @@ void CLicGenDlg::OnBnClickedButtonCreateSignature()
     }
 }
 
-
-std::string CStringToString(const CString& cstr) 
-{
-    CT2CA pszConvertedAnsi(cstr);
-    return std::string(pszConvertedAnsi);
-}
-
-CString StringToCString(const std::string& str)
-{
-    return CString(str.c_str());
-}
 
 
 void CLicGenDlg::OnBnClickedButtonEncrypt()
