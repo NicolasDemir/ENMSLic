@@ -12,7 +12,7 @@
 #include <format>
 #include <Windows.h>
 
-
+#include <vector>
 #include <locale>
 #include <codecvt>
 
@@ -22,6 +22,68 @@ using namespace std;
 #include "SoftLicenseMgr.h"
 #include "EncryptionMgr.h"
 
+void logStringToFile(const std::string& message, const std::string& filename) {
+    std::ofstream outputFile(filename, std::ios_base::app); // Open file in append mode
+    if (outputFile.is_open()) {
+        outputFile << message << std::endl; // Write message to file
+        outputFile.close(); // Close the file
+        std::cout << "Message logged to file successfully." << std::endl;
+    }
+    else {
+        std::cerr << "Unable to open file: " << filename << std::endl;
+    }
+}
+
+
+// Function to trim leading and trailing whitespaces
+std::string trim(const std::string& str) {
+    size_t first = str.find_first_not_of(" \t");
+    size_t last = str.find_last_not_of(" \t");
+    if (first == std::string::npos || last == std::string::npos)
+        return "";
+    return str.substr(first, last - first + 1);
+}
+
+// Function to parse INI file
+std::vector<std::pair<std::string, std::vector<std::pair<std::string, std::string>>>> parseIniFile(const std::string& filename) {
+    std::ifstream file(filename);
+    std::vector<std::pair<std::string, std::vector<std::pair<std::string, std::string>>>> iniData;
+    std::string currentSection;
+
+    if (file.is_open()) {
+        std::string line;
+        while (std::getline(file, line)) {
+            // Trim leading and trailing whitespaces
+            line = trim(line);
+
+            // Ignore empty lines and comments
+            if (line.empty() || line[0] == ';' || line[0] == '#')
+                continue;
+
+            // Check for section
+            if (line[0] == '[' && line.back() == ']') {
+                currentSection = line.substr(1, line.size() - 2);
+                iniData.push_back({ currentSection, std::vector<std::pair<std::string, std::string>>() });
+            }
+            // Check for key-value pair
+            else {
+                size_t pos = line.find('=');
+                if (pos != std::string::npos) {
+                    std::string key = trim(line.substr(0, pos));
+                    std::string value = trim(line.substr(pos + 1));
+                    if (!currentSection.empty()) {
+                        iniData.back().second.push_back({ key, value });
+                    }
+                }
+            }
+        }
+        file.close();
+    }
+    else {
+        std::cerr << "Unable to open file: " << filename << std::endl;
+    }
+    return iniData;
+}
 
 string CSoftLicenseMgr::GetEncryptedString(const string& input, int key, string salt, int randomlength)
 {
@@ -86,7 +148,7 @@ string CSoftLicenseMgr::GetOptions()
 
 int CSoftLicenseMgr::GenerateLicenseFile(const string& filePath)
 {
-    string szpath = filePath + "\\" + "lic-" + m_licfeatures.m_serial + ".dat";
+    string szpath = filePath + "\\" + "lic.dat";
 
     m_licfeatures.m_guid = GetRandomGUId();
     m_licfeatures.m_options = GetOptions();
@@ -102,74 +164,388 @@ int CSoftLicenseMgr::GenerateLicenseFile(const string& filePath)
     string szwork = "[" + g_SectionGeneral + "]";
     iniFile << szwork << std::endl;
 
-
-    stringstream ssHash;
-    ssHash << szwork;
-    ssHash << g_SectionGeneral; 
+    stringstream ssHashGeneral;
+    ssHashGeneral << szwork;
+    ssHashGeneral << g_SectionGeneral;
  
     iniFile << g_licenseNumber << "=" << m_licfeatures.m_serial << endl;
 
-    ssHash << g_licenseNumber;
-    ssHash << m_licfeatures.m_serial;
+    ssHashGeneral << g_licenseNumber;
+    ssHashGeneral << m_licfeatures.m_serial;
 
     iniFile << g_version << "=" << m_licfeatures.m_version << endl;
 
-    ssHash << g_version;
-    ssHash << m_licfeatures.m_version;
+    ssHashGeneral << g_version;
+    ssHashGeneral << m_licfeatures.m_version;
 
     iniFile << g_meters << "=" << m_licfeatures.m_meters << endl;
 
-    ssHash << g_meters;
-    ssHash << m_licfeatures.m_meters;
+    ssHashGeneral << g_meters;
+    ssHashGeneral << m_licfeatures.m_meters;
 
     iniFile << g_users << "=" << m_licfeatures.m_users << endl;
 
-    ssHash << g_users;
-    ssHash << m_licfeatures.m_users;
+    ssHashGeneral << g_users;
+    ssHashGeneral << m_licfeatures.m_users;
 
     iniFile << g_connections << "=" << m_licfeatures.m_connections << endl;
 
-    ssHash << g_connections;
-    ssHash << m_licfeatures.m_connections;
+    ssHashGeneral << g_connections;
+    ssHashGeneral << m_licfeatures.m_connections;
 
     iniFile << g_product << "=" << m_licfeatures.m_product << endl;
 
-    ssHash << g_product;
-    ssHash << m_licfeatures.m_product;
+    ssHashGeneral << g_product;
+    ssHashGeneral << m_licfeatures.m_product;
 
     iniFile << g_update << "=" << m_licfeatures.m_update << endl;
 
-    ssHash << g_update;
-    ssHash << m_licfeatures.m_update;
+    ssHashGeneral << g_update;
+    ssHashGeneral << m_licfeatures.m_update;
 
     iniFile << g_activation << "=" << m_licfeatures.m_activation << endl;
     
-    ssHash << g_activation;
-    ssHash << m_licfeatures.m_activation;
+    ssHashGeneral << g_activation;
+    ssHashGeneral << m_licfeatures.m_activation;
 
+    iniFile << g_Machine << "=" << m_licfeatures.m_machine << endl;
+
+    ssHashGeneral << g_Machine;
+    ssHashGeneral << m_licfeatures.m_machine;
    
-    string szhashed = GetHash(1, ssHash.str());
+    string szhashed = GetHash(1, ssHashGeneral.str());
     iniFile << g_key << "=" << szhashed << endl;
 
-
+    stringstream ssHashfeatures;
+    
     szwork = "[" + g_SectionFeatures + "]";
     iniFile << szwork << std::endl;
+    ssHashfeatures << szwork;
+    ssHashfeatures << g_SectionFeatures;
 
     szwork = "";
     iniFile << g_S1 << "=" << m_licfeatures.m_guid << endl;
-    iniFile << g_T1 << "=" << m_licfeatures.m_options << endl;
-    iniFile << g_S2 << "=" << m_licfeatures.m_signature << endl;
-    iniFile << g_E4 << "=" << szwork << endl;
-    iniFile << g_F1 << "=" << szwork << endl;
-    iniFile << g_key << "=" << szwork << endl;
+    ssHashfeatures << g_S1;
+    ssHashfeatures << m_licfeatures.m_guid;
 
+    iniFile << g_T1 << "=" << m_licfeatures.m_options << endl;
+    ssHashfeatures << g_T1;
+    ssHashfeatures << m_licfeatures.m_options;
+
+    iniFile << g_S2 << "=" << m_licfeatures.m_signature << endl;
+    ssHashfeatures << g_S2;
+    ssHashfeatures << m_licfeatures.m_signature;
+
+    szwork = "";
+    iniFile << g_E4 << "=" << szwork << endl;
+    ssHashfeatures << g_E4;
+    ssHashfeatures << szwork;
+
+    iniFile << g_F1 << "=" << szwork << endl;
+    ssHashfeatures << g_F1;
+    ssHashfeatures << szwork;
+    
+    szhashed = GetHash(2, ssHashfeatures.str());
+    iniFile << g_key << "=" << szhashed << endl;
 
     iniFile.flush();
     iniFile.close();
 
-    std::cout << "INI file created successfully." << std::endl;
     return ERROR_NOERROR;
 }
 
 
+int CSoftLicenseMgr::CheckFile(const string& filePath, const string& fileOutput)
+{
+    string filename = fileOutput;
+    remove(filename.c_str());
+
+    vector<pair<string, vector<pair<string, string>>>> iniData = parseIniFile(filePath);
+
+    stringstream ssHash;
+
+    bool bcheck = FALSE;
+
+    // Display parsed data
+    for (const auto& section : iniData) 
+    {
+        ssHash.str("");
+
+        string szwork = "[" + section.first + "]";
+        ssHash << szwork;
+        ssHash << section.first;
+
+        for (const auto& entry : section.second)
+        {
+            string aentry = entry.first;
+            string avalue = entry.second;
+
+            if (entry.first != "key")
+            {
+                ssHash << aentry;
+                ssHash << avalue;
+            }
+            else
+            {
+                CustomCypher    acypher;
+                string szHash = ssHash.str();
+                string sz = acypher.HashInput(szHash);
+                if (sz == avalue)
+                {
+                    bcheck = true;
+                }
+                else
+                {
+                    bcheck = false;
+                }
+            }
+        }
+    }
+
+    return ERROR_NOERROR;
+}
+ 
+
+bool CSoftLicenseMgr::RetrieveSystemInformation()
+{
+   /* m_sMachine = GetTargetName();
+    m_sMac = GetMacAddress();
+    m_sMacAdvanced = GetMacAddressAdvanced();
+
+    /*CString sDomain = GetDomain();
+    CString szCPU = GetCPUID();
+
+    CString SignatureSoft = m_sMachine + _T("|") + m_sVolume;
+    CString SignatureHard = m_sMac;
+
+    m_SoftSignature = EncryptedPassword(SignatureSoft);
+    m_HardSignature = EncryptedPassword(m_sMac);
+    m_HadSignatureAdvanced = EncryptedPassword(m_sMacAdvanced);
+
+    m_CRC = EncryptedPassword(SignatureSoft + m_sMac);
+
+*/
+    return TRUE;
+}
+
+
+string CSoftLicenseMgr::GetMAcAdress(int& error)
+{
+    string szreturn;
+
+    IP_ADAPTER_INFO AdapterInfo[16];
+    DWORD dwBufLen = sizeof(AdapterInfo);
+
+    DWORD dwStatus = GetAdaptersInfo(AdapterInfo, &dwBufLen);
+    if (dwStatus != ERROR_SUCCESS)
+    {
+        error = ERROR_RETRIEVING_FINGERPRINt;
+        return szreturn;
+    }
+
+    std::stringstream macAddresses;
+    PIP_ADAPTER_INFO pAdapterInfo = AdapterInfo;
+    while (pAdapterInfo) {
+        macAddresses << std::hex << std::uppercase << std::setfill('0');
+        for (int i = 0; i < 8/*pAdapterInfo->AddressLength*/; ++i) {
+            macAddresses << std::setw(2) << static_cast<int>(pAdapterInfo->Address[i]);
+            if (i < 7 /*pAdapterInfo->AddressLength - 1*/)
+                macAddresses << ":";
+        }
+        if (pAdapterInfo->Next)
+            macAddresses << "|";
+        pAdapterInfo = pAdapterInfo->Next;
+    }
+
+    return macAddresses.str();
+}
+
+
+int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
+{
+    int error = ERROR_NOERROR;
+
+    string sMACAdress = GetMAcAdress(error);
+
+    if (error != ERROR_NOERROR)
+        return error;
+
+    //proceed signature
+    istringstream currentfingerprint(sMACAdress);
+    string token;
+    vector<string> tokenCurrent;
+    while (getline(currentfingerprint, token, '|'))
+    {
+        tokenCurrent.push_back(token);
+    }
+
+    istringstream givenfingerprint(szfingerprint);
+    vector<string> tokenGiven;
+    while (getline(givenfingerprint, token, '|'))
+    {
+        tokenGiven.push_back(token);
+    }
+
+    size_t sizegiven = tokenGiven.size();
+    size_t sizecurrent = tokenCurrent.size();
+
+    bool bfind = false;
+
+    for (int i = 0; i < tokenGiven.size(); i++)
+    {
+        bfind = false;
+        
+        for (int j = 0; j < tokenCurrent.size(); j++)
+        {
+            if (tokenCurrent[j].compare(tokenGiven[i]) == 0)
+            {
+                bfind = true;
+                break;
+            }
+        }
+
+        if (!bfind)
+            return ERROR_FINGERPRINT;
+    }
+
+
+    return ERROR_NOERROR;
+}
+
+int CSoftLicenseMgr::ExtractOptions(const string& szoptins, int& meters, int& users, int& connections, int& product, int& update, int& version)
+{
+    return ERROR_NOERROR;
+}
+
+int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint)
+{
+    if (szfingerprint.length() == 0)
+        return ERROR_INVALIDFILE;
+
+    //proceed signature
+    istringstream ss(szfingerprint);
+    string token;
+    vector<string> tokens;
+
+    while (getline(ss, token, ';'))
+    {
+        tokens.push_back(token);
+    }
+
+    size_t ts = tokens.size();
+
+    if (ts < 3)
+        return ERROR_INVALIDFILE;
+
+    if (tokens[0].compare("fig1") != 0)
+        return ERROR_INVALIDFILE;
+
+    int nSigVersion = 0;
+
+    try
+    {
+        nSigVersion = ::atoi(tokens[1].c_str());
+    }
+    catch (...)
+    {
+        return ERROR_INVALIDFILE;
+    }
+
+    int error = CompareFingerPrint(tokens[2]);
+    
+    if (error != ERROR_NOERROR)
+        return error;
+
+    return ERROR_NOERROR;
+}
+
+int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileouput, _LicOptions& options)
+{
+    std::remove(fileouput.c_str());
+
+    int error = ERROR_NOERROR;
+
+    error = CheckFile(szpath, fileouput);
+
+    if (error != ERROR_NOERROR)
+        return error;
+
+    vector<pair<string, vector<pair<string, string>>>> iniData = parseIniFile(szpath);
+
+    CustomCypher    acypher;
    
+    string szSignature, szOptions;
+
+    for (const auto& section : iniData)
+    {
+        string asection = section.first;
+      
+        for (const auto& entry : section.second)
+        {
+            string aentry = entry.first;
+            if (asection == g_sectionGeneral)
+            {
+                if (aentry.compare(g_entryMeters) == 0)
+                {
+                    //          *meters = stoi(avalue);
+                }
+                else if (aentry.compare(g_entryUsers) == 0)
+                {
+                    //         *users = stoi(avalue);
+                }
+                else if (aentry.compare(g_entryConnections) == 0)
+                {
+                    //         *connections = stoi(avalue);
+                }
+                else if (aentry.compare(g_entryVersion) == 0)
+                {
+                    //        *version = stoi(avalue);
+                }
+                else if (aentry.compare(g_entryProduct) == 0)
+                {
+                    //         *product = stoi(avalue);
+                }
+                else if (aentry.compare(g_entrySerial) == 0)
+                {
+                    //  string avalue = entry.second;
+                }
+                else if (aentry.compare(g_entryUpdate) == 0)
+                {
+                    //        *update = stoi(avalue);
+                }
+            }
+            else if (asection == g_sectionFeatures)
+            {
+                if (aentry.compare(g_S2) == 0)
+                {
+                    CustomCypher cipher;
+                    szSignature = cipher.decrypt(entry.second);
+                }
+                else if (aentry.compare(g_T1) == 0)
+                {
+                    CustomCypher cipher;
+                    szOptions = cipher.decrypt(entry.second);
+                }
+                else if (aentry.compare(g_E4) == 0)
+                {
+                    //         *users = stoi(avalue);
+                }
+                else if (aentry.compare(g_F1) == 0)
+                {
+                    //         *users = stoi(avalue);
+                };
+            }
+        }
+    }
+
+    error = CheckMachineFingerPrint(szSignature);
+    if (error != ERROR_NOERROR)
+        return error;
+
+    error = ExtractOptions(szOptions, options.m_meters, options.m_users, options.m_connections, options.m_product, options.m_update, options.m_version);
+    if (error != ERROR_NOERROR)
+        return error;
+
+
+    return ERROR_NOERROR;
+}

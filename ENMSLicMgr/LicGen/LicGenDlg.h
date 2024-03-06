@@ -54,5 +54,10 @@ public:
 	int m_meters;
 	int m_connections;
 	CString m_signature;
+	CString	m_machine;
+	CString	m_Domain;
+	CString	m_m_encodedDomain;
+
 	afx_msg void OnBnClickedButtonEncrypt2();
+	afx_msg void OnBnClickedButtonCheck();
 };

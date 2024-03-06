@@ -20,6 +20,7 @@ const string g_connections = "connections";
 const string g_update = "update";
 const string g_product = "product";
 const string g_activation = "activationdate";
+const string g_Machine= "machine";
 const string g_key = "key";
 
 const string g_S1 = "S1";
@@ -36,10 +37,9 @@ public:
     CIniFilmeMgr() {};
     string readIniEntry(const string& filePath, const string& section, const string& key);
     void writeIniEntry(const string& filePath, const string& section, const string& key, const string& value);
-    map<string, map<string, string>> CIniFilmeMgr::parseIniFile(const string section, const string& filename, int& error);
     int ProtectSection(const string& filePath, const string& section, const string& key, const string& salt);
 
-    int GenerateLicenseFile(const string& filePath, LicenseFeatures licfeatures);
+   
 
 
 };

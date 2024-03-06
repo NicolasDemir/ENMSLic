@@ -17,6 +17,8 @@
 #define IDC_BUTTON_ENCRYPT              1007
 #define IDC_BUTTON_DECRYPT              1008
 #define IDC_BUTTON_ENCRYPT2             1009
+#define IDC_BUTTON_ENCRYPT3             1010
+#define IDC_BUTTON_CHECK                1010
 
 // Next default values for new objects
 // 

@@ -105,6 +105,7 @@ BEGIN_MESSAGE_MAP(CLicGenDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_ENCRYPT, &CLicGenDlg::OnBnClickedButtonEncrypt)
     ON_BN_CLICKED(IDC_BUTTON_DECRYPT, &CLicGenDlg::OnBnClickedButtonDecrypt)
     ON_BN_CLICKED(IDC_BUTTON_ENCRYPT2, &CLicGenDlg::OnBnClickedButtonEncrypt2)
+    ON_BN_CLICKED(IDC_BUTTON_CHECK, &CLicGenDlg::OnBnClickedButtonCheck)
 END_MESSAGE_MAP()
 
 
@@ -146,6 +147,11 @@ BOOL CLicGenDlg::OnInitDialog()
     szSig.Format(_T("fig1;1;%s"), m_akey.m_sMacAdvanced);
   
     m_signature = GetEncryptedString(szSig);
+
+    m_machine = m_akey.m_sMachine;
+   // m_encodedMachine = GetEncryptedString(m_machine);
+   // m_encodedDomain = GetEncryptedString(m_akey.m_);
+
 
     UpdateData(FALSE);
 
@@ -333,7 +339,9 @@ void CLicGenDlg::OnBnClickedButtonCreate()
     m_softLicMgr.m_licfeatures.m_users = m_users;
     m_softLicMgr.m_licfeatures.m_connections = m_connections;
     m_softLicMgr.m_licfeatures.m_signature = CStringToString(m_signature);
+    m_softLicMgr.m_licfeatures.m_machine = CStringToString(m_machine);
     
+
     string szFolder = CStringToString(GetWorkingDirectory());
 
     int nresult = m_softLicMgr.GenerateLicenseFile(szFolder);
@@ -438,15 +446,8 @@ void CLicGenDlg::OnBnClickedButtonEncrypt()
 CString CLicGenDlg::GetEncryptedString(const CString& incput, BOOL bEncrypt )
 {
     string sz = CStringToString(incput);
-
-    int key = 3;
-    string salt = "Olaf";
-    int randomLength = 5; // Length of random characters to append
-
-    // Seed for random number generation
-    srand(time(0));
-
-    CustomCypher cipher(key, salt, randomLength);
+        
+    CustomCypher cipher;
     string szReturn;
     if(bEncrypt)
         szReturn = cipher.encrypt(sz);
@@ -486,7 +487,15 @@ void CLicGenDlg::OnBnClickedButtonEncrypt2()
     // Decryption
     string decrypted = cipher.decrypt(encrypted);
     cout << "Decrypted: " << decrypted << endl;
-
-
 }
 
+void CLicGenDlg::OnBnClickedButtonCheck()
+{
+    CString szfile = GetWorkingDirectory() + _T("\\") + _T("lic.dat");
+    CString szOutput = GetWorkingDirectory() + _T("\\") + _T("licgen.txt");
+    string afile = CStringToString(szfile);
+    string afileOutput = CStringToString(szOutput);
+
+    _LicOptions options;
+    int nreturn = m_softLicMgr.CheckoutLicense(afile, afileOutput, options);
+}

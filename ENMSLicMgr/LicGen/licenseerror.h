@@ -1,6 +1,10 @@
 #pragma once
 
+#define ERROR_NOERROR          1
+#define ERROR_FILE_DONT_EXIST  100
+#define ERROR_FILEINTEGRITY    101
+#define ERROR_CREATEFILE       102
+#define ERROR_INVALIDFILE      103
+#define ERROR_FINGERPRINT       150
+#define ERROR_RETRIEVING_FINGERPRINt    151
 
-#define ERROR_NOERROR           0
-#define ERROR_FILE_DONT_EXIST   101
-#define ERROR_CREATEFILE        102
