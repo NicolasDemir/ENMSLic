@@ -17,8 +17,10 @@
 #define IDC_BUTTON_ENCRYPT              1007
 #define IDC_BUTTON_DECRYPT              1008
 #define IDC_BUTTON_ENCRYPT2             1009
-#define IDC_BUTTON_ENCRYPT3             1010
 #define IDC_BUTTON_CHECK                1010
+#define IDC_EDIT_MACHINE                1011
+#define IDC_EDIT_MACHINE2               1012
+#define IDC_EDIT_DOMAIN                 1012
 
 // Next default values for new objects
 // 

@@ -94,6 +94,8 @@ void CLicGenDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_EDIT_METERS, m_meters);
     DDX_Text(pDX, IDC_EDIT_CONNEXIONS, m_connections);
     DDX_Text(pDX, IDC_EDIT_SIGNATURE, m_signature);
+    DDX_Text(pDX, IDC_EDIT_DOMAIN, m_domain);
+    DDX_Text(pDX, IDC_EDIT_MACHINE, m_machine);
 }
 
 BEGIN_MESSAGE_MAP(CLicGenDlg, CDialogEx)
@@ -149,7 +151,9 @@ BOOL CLicGenDlg::OnInitDialog()
     m_signature = GetEncryptedString(szSig);
 
     m_machine = m_akey.m_sMachine;
-   // m_encodedMachine = GetEncryptedString(m_machine);
+    m_domain = m_akey.m_sDomain;
+    
+    // m_encodedMachine = GetEncryptedString(m_machine);
    // m_encodedDomain = GetEncryptedString(m_akey.m_);
 
 
@@ -340,6 +344,7 @@ void CLicGenDlg::OnBnClickedButtonCreate()
     m_softLicMgr.m_licfeatures.m_connections = m_connections;
     m_softLicMgr.m_licfeatures.m_signature = CStringToString(m_signature);
     m_softLicMgr.m_licfeatures.m_machine = CStringToString(m_machine);
+    m_softLicMgr.m_licfeatures.m_domain = CStringToString(m_domain);
     
 
     string szFolder = CStringToString(GetWorkingDirectory());

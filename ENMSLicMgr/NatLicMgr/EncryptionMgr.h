@@ -7,6 +7,13 @@
 
 using namespace std;
 
+enum cypherType
+{
+    cypherType_machine = 0,
+    cypherType_domain = 1,
+
+};
+
 class CustomCypher {
 private:
     int key = 6;
@@ -15,6 +22,22 @@ private:
 
 public:
     CustomCypher() {}
+    CustomCypher(cypherType type)
+    {
+        if (type == cypherType::cypherType_domain)
+        {
+            key = 5;
+            string salt = "domain";
+            randomLength = salt.length();
+        }
+        else if (type == cypherType::cypherType_machine)
+        {
+            key = 7;
+            string salt = "computer";
+            randomLength = salt.length();
+        }
+    }
+
     CustomCypher(int _key, const string& _salt, int _randomLength) : key(_key), salt(_salt), randomLength(_randomLength) {}
 
     string encrypt(const string& message) {
@@ -176,5 +199,4 @@ private:
         return ss.str();
     }
 };
-
 

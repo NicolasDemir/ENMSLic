@@ -43,8 +43,8 @@ BOOL CSoftKeyHelper::RetrieveSystemInformation()
     m_sMac = GetMacAddress();
     m_sMacAdvanced = GetMacAddressAdvanced();
 
-    /*CString sDomain = GetDomain();
-    CString szCPU = GetCPUID();*/
+    m_sDomain = GetDomain();
+    m_sCPU= GetCPUID();
 
     CString SignatureSoft = m_sMachine + _T("|") + m_sVolume;
     CString SignatureHard = m_sMac;

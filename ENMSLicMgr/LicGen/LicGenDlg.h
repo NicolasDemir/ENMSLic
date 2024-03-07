@@ -55,7 +55,7 @@ public:
 	int m_connections;
 	CString m_signature;
 	CString	m_machine;
-	CString	m_Domain;
+	CString	m_domain;
 	CString	m_m_encodedDomain;
 
 	afx_msg void OnBnClickedButtonEncrypt2();

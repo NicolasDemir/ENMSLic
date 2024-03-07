@@ -236,11 +236,14 @@ int CSoftLicenseMgr::GenerateLicenseFile(const string& filePath)
     ssHashfeatures << g_S2;
     ssHashfeatures << m_licfeatures.m_signature;
 
-    szwork = "";
+    CustomCypher acypherM(cypherType_machine);
+    szwork = acypherM.encrypt(m_licfeatures.m_machine);
     iniFile << g_E4 << "=" << szwork << endl;
     ssHashfeatures << g_E4;
     ssHashfeatures << szwork;
 
+    CustomCypher acypherD(cypherType_domain);
+    szwork = acypherD.encrypt(m_licfeatures.m_domain);
     iniFile << g_F1 << "=" << szwork << endl;
     ssHashfeatures << g_F1;
     ssHashfeatures << szwork;
@@ -412,8 +415,35 @@ int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
     return ERROR_NOERROR;
 }
 
-int CSoftLicenseMgr::ExtractOptions(const string& szoptins, int& meters, int& users, int& connections, int& product, int& update, int& version)
+int CSoftLicenseMgr::ExtractOptions(const string& szoptions, int& meters, int& users, int& connections, int& product, int& update, int& version)
 {
+    //proceed signature
+    istringstream streamoptions(szoptions);
+    string token;
+    vector<string> tokenoptions;
+    while (getline(streamoptions, token, ';'))
+    {
+        tokenoptions.push_back(token);
+    }
+
+    size_t s = tokenoptions.size();
+    if (s < 7)
+        return ERROR_INVALIDFILE;
+
+    try
+    {
+        version = ::atoi(tokenoptions[1].c_str());
+        meters = ::atoi(tokenoptions[2].c_str());
+        users = ::atoi(tokenoptions[3].c_str());
+        connections = ::atoi(tokenoptions[4].c_str());
+        update = ::atoi(tokenoptions[5].c_str());
+        product = ::atoi(tokenoptions[6].c_str());
+    }
+    catch (...)
+    {
+        return ERROR_INVALIDFILE;
+    }
+
     return ERROR_NOERROR;
 }
 
@@ -474,7 +504,7 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
 
     CustomCypher    acypher;
    
-    string szSignature, szOptions;
+    string szSignature, szOptions, szmachine, szdomain;
 
     for (const auto& section : iniData)
     {
@@ -528,11 +558,13 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
                 }
                 else if (aentry.compare(g_E4) == 0)
                 {
-                    //         *users = stoi(avalue);
+                    CustomCypher acypherM(cypherType_machine);
+                    szmachine = acypherM.decrypt(entry.second);
                 }
                 else if (aentry.compare(g_F1) == 0)
                 {
-                    //         *users = stoi(avalue);
+                    CustomCypher acypherM(cypherType_domain);
+                    szdomain = acypherM.decrypt(entry.second);
                 };
             }
         }

@@ -32,6 +32,8 @@ public:
     CString m_sMachine;
     CString m_sMac;
     CString m_sMacAdvanced;
+    CString m_sDomain;
+    CString m_sCPU;
 
 
     BOOL    RetrieveSystemInformation();
