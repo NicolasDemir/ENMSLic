@@ -503,4 +503,5 @@ void CLicGenDlg::OnBnClickedButtonCheck()
 
     _LicOptions options;
     int nreturn = m_softLicMgr.CheckoutLicense(afile, afileOutput, options);
+    int i = nreturn;
 }

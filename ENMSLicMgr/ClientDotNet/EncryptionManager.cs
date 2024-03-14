@@ -54,6 +54,20 @@ namespace ClientDotNet
         
         }
 
+        public string GetResultString(int result)
+        {
+            switch (result)
+            {
+                case 1: return "Success";
+                case 100: return "Unable to find license file";
+                case 101: return "License file has been modified";
+                case 102: return "Invalid license file";
+                case 150: return "The license do not match the computer fingerprint";
+                case 151: return "Unable to extract computer fingerprint";
+            }
+
+            return "Unexpected license error";
+        }
 
         public int CheckOut(string A, string szpath)
         {

@@ -42,7 +42,7 @@ namespace ClientDotNet
         {
             this.Close();
         }
-      
+
 
         private void button6_Click(object sender, EventArgs e)
         {
@@ -53,11 +53,11 @@ namespace ClientDotNet
             if (!File.Exists(fullPath))
             {
                 MessageBox.Show("unable to find a license file at " + fullPath);
-                return;
             }
 
             textBoxCp.Text = "";
             textBoxCs.Text = "";
+            tbError.Text = "";
             textBoxCs.ForeColor = Color.Red;
             textBoxCp.ForeColor = Color.Red;
             int nreturn = 0;
@@ -68,6 +68,7 @@ namespace ClientDotNet
                 MessageBox.Show("Le SHA256 ne fonctionne dans les deux mondes que pour une clé de 4, 8 ou 12 chars");
 
             nreturn = m_encryptMgr.CheckOut(sz, fullPath);
+            string ResultString = m_encryptMgr.GetResultString(nreturn);
 
             string result2 = m_encryptMgr.Sha256(sz);
 
@@ -77,6 +78,7 @@ namespace ClientDotNet
             }
 
             tbReturn.Text = nreturn.ToString();
+            tbError.Text = ResultString;
 
             m_list.Items[0].SubItems[1].Text = m_encryptMgr.Serial;
             m_list.Items[1].SubItems[1].Text = m_encryptMgr.Users.ToString();

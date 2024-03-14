@@ -30,6 +30,8 @@
         {
             button3 = new Button();
             groupBox3 = new GroupBox();
+            tbReturn = new TextBox();
+            label3 = new Label();
             tbFilePath = new TextBox();
             brFilePath = new Button();
             label1 = new Label();
@@ -44,8 +46,7 @@
             buttonCheckout = new Button();
             groupBox1 = new GroupBox();
             m_list = new ListView();
-            tbReturn = new TextBox();
-            label3 = new Label();
+            tbError = new TextBox();
             groupBox3.SuspendLayout();
             groupBox2.SuspendLayout();
             groupBox1.SuspendLayout();
@@ -63,6 +64,7 @@
             // 
             // groupBox3
             // 
+            groupBox3.Controls.Add(tbError);
             groupBox3.Controls.Add(tbReturn);
             groupBox3.Controls.Add(label3);
             groupBox3.Controls.Add(tbFilePath);
@@ -76,6 +78,23 @@
             groupBox3.TabIndex = 7;
             groupBox3.TabStop = false;
             groupBox3.Text = "Licensing ";
+            // 
+            // tbReturn
+            // 
+            tbReturn.Location = new Point(109, 53);
+            tbReturn.Name = "tbReturn";
+            tbReturn.ReadOnly = true;
+            tbReturn.Size = new Size(41, 23);
+            tbReturn.TabIndex = 33;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(15, 57);
+            label3.Name = "label3";
+            label3.Size = new Size(73, 15);
+            label3.TabIndex = 32;
+            label3.Text = "Return value";
             // 
             // tbFilePath
             // 
@@ -209,22 +228,12 @@
             m_list.UseCompatibleStateImageBehavior = false;
             m_list.View = View.Details;
             // 
-            // tbReturn
+            // tbError
             // 
-            tbReturn.Location = new Point(109, 53);
-            tbReturn.Name = "tbReturn";
-            tbReturn.ReadOnly = true;
-            tbReturn.Size = new Size(41, 23);
-            tbReturn.TabIndex = 33;
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new Point(15, 57);
-            label3.Name = "label3";
-            label3.Size = new Size(73, 15);
-            label3.TabIndex = 32;
-            label3.Text = "Return value";
+            tbError.Location = new Point(156, 55);
+            tbError.Name = "tbError";
+            tbError.Size = new Size(332, 23);
+            tbError.TabIndex = 34;
             // 
             // Form1
             // 
@@ -266,5 +275,6 @@
         private ListView m_list;
         private TextBox tbReturn;
         private Label label3;
+        private TextBox tbError;
     }
 }

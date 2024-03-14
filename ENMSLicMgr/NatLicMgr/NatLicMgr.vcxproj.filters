@@ -24,10 +24,10 @@
     <ClInclude Include="CLicMgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="toolbox.h">
+    <ClInclude Include="EncryptionMgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EncryptionMgr.h">
+    <ClInclude Include="SoftLicHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClCompile Include="CLicMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="toolbox.cpp">
+    <ClCompile Include="SoftLicHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

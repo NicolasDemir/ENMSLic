@@ -1,7 +1,5 @@
 #include "pch.h"
-#include "licenseerror.h"
 
-#include <iostream>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -18,9 +16,11 @@
 
 using namespace std;
 
-#include "inifilemgr.h"
-#include "SoftLicenseMgr.h"
+#include "SoftLichelper.h"
 #include "EncryptionMgr.h"
+
+#include <iphlpapi.h>
+#pragma comment(lib, "IPHLPAPI.lib")
 
 void logStringToFile(const std::string& message, const std::string& filename) {
     std::ofstream outputFile(filename, std::ios_base::app); // Open file in append mode
@@ -36,7 +36,7 @@ void logStringToFile(const std::string& message, const std::string& filename) {
 
 
 // Function to trim leading and trailing whitespaces
-std::string trim(const std::string& str) {
+string trim(const std::string& str) {
     size_t first = str.find_first_not_of(" \t");
     size_t last = str.find_last_not_of(" \t");
     if (first == std::string::npos || last == std::string::npos)
@@ -85,42 +85,24 @@ std::vector<std::pair<std::string, std::vector<std::pair<std::string, std::strin
     return iniData;
 }
 
-string CSoftLicenseMgr::GetEncryptedString(const string& input, int key, string salt, int randomlength)
+string CSoftLicHelper::GetEncryptedString(const string& input, int key, string salt, int randomlength)
 {
     CustomCypher cipher(key, salt, randomlength);
     string szReturn = cipher.encrypt(input);
     return szReturn;
 }
 
-string CSoftLicenseMgr::GetHash(int Tyoe, string input)
+string CSoftLicHelper::GetHash(int Tyoe, string input)
 {
     CustomCypher    acypher;
     return acypher.HashInput(input);
 }
 
-string CSoftLicenseMgr::GetRandomGUId()
+
+
+string CSoftLicHelper::GetOptions()
 {
-    GUID guid;
-    CoCreateGuid(&guid);
-
-    wchar_t guidString[39]; // String representation of GUID will be 38 characters + NULL terminator
-    if (StringFromGUID2(guid, guidString, sizeof(guidString)) == 0) 
-    {
-        return "";
-    }
-
-    wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-
-    string sresuklt = converter.to_bytes(guidString);
-  
-    string szreturn = GetEncryptedString(sresuklt, 4, "guid", 6);
- 
-    return szreturn;
-}
-
-string CSoftLicenseMgr::GetOptions()
-{
-    string szReturn ;
+    string szReturn;
     szReturn = "lic;";
 
     string szDelimiteur = ";";
@@ -145,127 +127,15 @@ string CSoftLicenseMgr::GetOptions()
     return szreturn;
 }
 
-
-int CSoftLicenseMgr::GenerateLicenseFile(const string& filePath)
+int CSoftLicHelper::CheckFile(const string& filePath, const string& fileOutput)
 {
-    string szpath = filePath + "\\" + "lic.dat";
-
-    m_licfeatures.m_guid = GetRandomGUId();
-    m_licfeatures.m_options = GetOptions();
-
-    ofstream iniFile(szpath);
-
-    // Check if the file opened successfully
-    if (!iniFile.is_open())
-    {
-        return ERROR_CREATEFILE;
-    }
-
-    string szwork = "[" + g_SectionGeneral + "]";
-    iniFile << szwork << std::endl;
-
-    stringstream ssHashGeneral;
-    ssHashGeneral << szwork;
-    ssHashGeneral << g_SectionGeneral;
- 
-    iniFile << g_licenseNumber << "=" << m_licfeatures.m_serial << endl;
-
-    ssHashGeneral << g_licenseNumber;
-    ssHashGeneral << m_licfeatures.m_serial;
-
-    iniFile << g_version << "=" << m_licfeatures.m_version << endl;
-
-    ssHashGeneral << g_version;
-    ssHashGeneral << m_licfeatures.m_version;
-
-    iniFile << g_meters << "=" << m_licfeatures.m_meters << endl;
-
-    ssHashGeneral << g_meters;
-    ssHashGeneral << m_licfeatures.m_meters;
-
-    iniFile << g_users << "=" << m_licfeatures.m_users << endl;
-
-    ssHashGeneral << g_users;
-    ssHashGeneral << m_licfeatures.m_users;
-
-    iniFile << g_connections << "=" << m_licfeatures.m_connections << endl;
-
-    ssHashGeneral << g_connections;
-    ssHashGeneral << m_licfeatures.m_connections;
-
-    iniFile << g_product << "=" << m_licfeatures.m_product << endl;
-
-    ssHashGeneral << g_product;
-    ssHashGeneral << m_licfeatures.m_product;
-
-    iniFile << g_update << "=" << m_licfeatures.m_update << endl;
-
-    ssHashGeneral << g_update;
-    ssHashGeneral << m_licfeatures.m_update;
-
-    iniFile << g_activation << "=" << m_licfeatures.m_activation << endl;
-    
-    ssHashGeneral << g_activation;
-    ssHashGeneral << m_licfeatures.m_activation;
-
-    iniFile << g_Machine << "=" << m_licfeatures.m_machine << endl;
-
-    ssHashGeneral << g_Machine;
-    ssHashGeneral << m_licfeatures.m_machine;
-   
-    string szhashed = GetHash(1, ssHashGeneral.str());
-    iniFile << g_key << "=" << szhashed << endl;
-
-    stringstream ssHashfeatures;
-    
-    szwork = "[" + g_SectionFeatures + "]";
-    iniFile << szwork << std::endl;
-    ssHashfeatures << szwork;
-    ssHashfeatures << g_SectionFeatures;
-
-    szwork = "";
-    iniFile << g_S1 << "=" << m_licfeatures.m_guid << endl;
-    ssHashfeatures << g_S1;
-    ssHashfeatures << m_licfeatures.m_guid;
-
-    iniFile << g_T1 << "=" << m_licfeatures.m_options << endl;
-    ssHashfeatures << g_T1;
-    ssHashfeatures << m_licfeatures.m_options;
-
-    iniFile << g_S2 << "=" << m_licfeatures.m_signature << endl;
-    ssHashfeatures << g_S2;
-    ssHashfeatures << m_licfeatures.m_signature;
-
-    CustomCypher acypherM(cypherType_machine);
-    szwork = acypherM.encrypt(m_licfeatures.m_machine);
-    iniFile << g_E4 << "=" << szwork << endl;
-    ssHashfeatures << g_E4;
-    ssHashfeatures << szwork;
-
-    CustomCypher acypherD(cypherType_domain);
-    szwork = acypherD.encrypt(m_licfeatures.m_domain);
-    iniFile << g_F1 << "=" << szwork << endl;
-    ssHashfeatures << g_F1;
-    ssHashfeatures << szwork;
-    
-    szhashed = GetHash(2, ssHashfeatures.str());
-    iniFile << g_key << "=" << szhashed << endl;
-
-    iniFile.flush();
-    iniFile.close();
-
-    return ERROR_NOERROR;
-}
-
-
-int CSoftLicenseMgr::CheckFile(const string& filePath, const string& fileOutput)
-{
-    string filename = fileOutput;
-    remove(filename.c_str());
-
     ifstream file(filePath);
     if (!file.good())
         return ERROR_FILE_DONT_EXIST;
+    file.close();
+
+    string filename = fileOutput;
+    remove(filename.c_str());
 
     vector<pair<string, vector<pair<string, string>>>> iniData = parseIniFile(filePath);
 
@@ -274,7 +144,7 @@ int CSoftLicenseMgr::CheckFile(const string& filePath, const string& fileOutput)
     bool bcheck = FALSE;
 
     // Display parsed data
-    for (const auto& section : iniData) 
+    for (const auto& section : iniData)
     {
         ssHash.str("");
 
@@ -311,32 +181,32 @@ int CSoftLicenseMgr::CheckFile(const string& filePath, const string& fileOutput)
 
     return ERROR_NOERROR;
 }
- 
 
-bool CSoftLicenseMgr::RetrieveSystemInformation()
+
+bool CSoftLicHelper::RetrieveSystemInformation()
 {
-   /* m_sMachine = GetTargetName();
-    m_sMac = GetMacAddress();
-    m_sMacAdvanced = GetMacAddressAdvanced();
+    /* m_sMachine = GetTargetName();
+     m_sMac = GetMacAddress();
+     m_sMacAdvanced = GetMacAddressAdvanced();
 
-    /*CString sDomain = GetDomain();
-    CString szCPU = GetCPUID();
+     /*CString sDomain = GetDomain();
+     CString szCPU = GetCPUID();
 
-    CString SignatureSoft = m_sMachine + _T("|") + m_sVolume;
-    CString SignatureHard = m_sMac;
+     CString SignatureSoft = m_sMachine + _T("|") + m_sVolume;
+     CString SignatureHard = m_sMac;
 
-    m_SoftSignature = EncryptedPassword(SignatureSoft);
-    m_HardSignature = EncryptedPassword(m_sMac);
-    m_HadSignatureAdvanced = EncryptedPassword(m_sMacAdvanced);
+     m_SoftSignature = EncryptedPassword(SignatureSoft);
+     m_HardSignature = EncryptedPassword(m_sMac);
+     m_HadSignatureAdvanced = EncryptedPassword(m_sMacAdvanced);
 
-    m_CRC = EncryptedPassword(SignatureSoft + m_sMac);
+     m_CRC = EncryptedPassword(SignatureSoft + m_sMac);
 
-*/
+ */
     return TRUE;
 }
 
 
-string CSoftLicenseMgr::GetMAcAdress(int& error)
+string CSoftLicHelper::GetMAcAdress(int& error)
 {
     string szreturn;
 
@@ -368,7 +238,7 @@ string CSoftLicenseMgr::GetMAcAdress(int& error)
 }
 
 
-int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
+int CSoftLicHelper::CompareFingerPrint(const string& szfingerprint)
 {
     int error = ERROR_NOERROR;
 
@@ -401,7 +271,7 @@ int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
     for (int i = 0; i < tokenGiven.size(); i++)
     {
         bfind = false;
-        
+
         for (int j = 0; j < tokenCurrent.size(); j++)
         {
             if (tokenCurrent[j].compare(tokenGiven[i]) == 0)
@@ -419,7 +289,7 @@ int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
     return ERROR_NOERROR;
 }
 
-int CSoftLicenseMgr::ExtractOptions(const string& szoptions, int& meters, int& users, int& connections, int& product, int& update, int& version)
+int CSoftLicHelper::ExtractOptions(const string& szoptions, int& meters, int& users, int& connections, int& product, int& update, int& version)
 {
     //proceed signature
     istringstream streamoptions(szoptions);
@@ -451,7 +321,7 @@ int CSoftLicenseMgr::ExtractOptions(const string& szoptions, int& meters, int& u
     return ERROR_NOERROR;
 }
 
-int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint)
+int CSoftLicHelper::CheckMachineFingerPrint(const string& szfingerprint)
 {
     if (szfingerprint.length() == 0)
         return ERROR_INVALIDFILE;
@@ -486,14 +356,14 @@ int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint)
     }
 
     int error = CompareFingerPrint(tokens[2]);
-    
+
     if (error != ERROR_NOERROR)
         return error;
 
     return ERROR_NOERROR;
 }
 
-int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileouput, _LicOptions& options)
+int CSoftLicHelper::CheckoutLicense(const string& szpath, const string& fileouput, _LicOptions& options)
 {
     std::remove(fileouput.c_str());
 
@@ -507,13 +377,13 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
     vector<pair<string, vector<pair<string, string>>>> iniData = parseIniFile(szpath);
 
     CustomCypher    acypher;
-   
-    string szSignature, szOptions, szmachine, szdomain;
+
+    string serial, szSignature, szOptions, szmachine, szdomain;
 
     for (const auto& section : iniData)
     {
         string asection = section.first;
-      
+
         for (const auto& entry : section.second)
         {
             string aentry = entry.first;
@@ -541,7 +411,7 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
                 }
                 else if (aentry.compare(g_entrySerial) == 0)
                 {
-                     string avalue = entry.second;
+                    serial = entry.second;
                 }
                 else if (aentry.compare(g_entryUpdate) == 0)
                 {
@@ -582,6 +452,7 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
     if (error != ERROR_NOERROR)
         return error;
 
+    options.m_serial = serial;
 
     return ERROR_NOERROR;
 }
