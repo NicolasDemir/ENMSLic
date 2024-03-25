@@ -18,6 +18,8 @@
 #include <sstream>
 #include <iomanip>
 #include <atlstr.h> 
+#include <chrono>
+#include <ctime>
 
 #include "licenseerror.h"
 #include "inifilemgr.h"
@@ -108,6 +110,7 @@ BEGIN_MESSAGE_MAP(CLicGenDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_DECRYPT, &CLicGenDlg::OnBnClickedButtonDecrypt)
     ON_BN_CLICKED(IDC_BUTTON_ENCRYPT2, &CLicGenDlg::OnBnClickedButtonEncrypt2)
     ON_BN_CLICKED(IDC_BUTTON_CHECK, &CLicGenDlg::OnBnClickedButtonCheck)
+    ON_BN_CLICKED(IDC_BUTTON_IMPORT_SIGNATURE, &CLicGenDlg::OnBnClickedButtonImportSignature)
 END_MESSAGE_MAP()
 
 
@@ -333,7 +336,27 @@ void CLicGenDlg::OpenFileLocation(const CString& szfile)
 
 void CLicGenDlg::OnBnClickedButtonCreate()
 {
+    
+    auto now = chrono::system_clock::now();
+    time_t now_time = chrono::system_clock::to_time_t(now);
+    tm local_tm;
+
+    if (localtime_s(&local_tm, &now_time) != 0) {
+        return ;
+    }
+
+    int month = local_tm.tm_mon + 1;
+    int day = local_tm.tm_mday;
+    int hour = local_tm.tm_hour;
+    int minute = local_tm.tm_min;
+    int seconde = local_tm.tm_sec;
+
+    CString sz;
+    sz.Format(_T("TEST%d%02d%02d%02d%02d"), month, day, hour, minute, seconde);
+
     UpdateData(TRUE);
+
+    m_serial = sz;
 
     m_softLicMgr.m_licfeatures.m_serial = CStringToString(m_serial);
     m_softLicMgr.m_licfeatures.m_product = 1;
@@ -345,8 +368,7 @@ void CLicGenDlg::OnBnClickedButtonCreate()
     m_softLicMgr.m_licfeatures.m_signature = CStringToString(m_signature);
     m_softLicMgr.m_licfeatures.m_machine = CStringToString(m_machine);
     m_softLicMgr.m_licfeatures.m_domain = CStringToString(m_domain);
-    
-
+   
     string szFolder = CStringToString(GetWorkingDirectory());
 
     int nresult = m_softLicMgr.GenerateLicenseFile(szFolder);
@@ -356,6 +378,8 @@ void CLicGenDlg::OnBnClickedButtonCreate()
         CString szfile = GetWorkingDirectory() + _T("\\") + _T("lic-'") + m_serial + _T("'.dat");
         OpenFileLocation(szfile);
     }
+
+    UpdateData(FALSE);
 }
 
 
@@ -504,4 +528,41 @@ void CLicGenDlg::OnBnClickedButtonCheck()
     _LicOptions options;
     int nreturn = m_softLicMgr.CheckoutLicense(afile, afileOutput, options);
     int i = nreturn;
+}
+
+
+void CLicGenDlg::OnBnClickedButtonImportSignature()
+{
+    OPENFILENAME ofn;       // common dialog box structure
+    TCHAR szFile[260] = { 0 };       // buffer for file name
+
+    // Initialize OPENFILENAME
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFile = szFile;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = TEXT("All Files (*.dat)\0*.dat\0");
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+    // Display the Open dialog box
+    if (GetOpenFileName(&ofn) == TRUE) 
+    {
+        CIniFile afile;
+        if (!afile.SetFileName(ofn.lpstrFile))
+            return;
+
+        CString szSectionSignature = _T("Signatures");
+        CString sztemp;
+        afile.GetEntryValue(szSectionSignature, _T("4"), m_machine);
+        afile.GetEntryValue(szSectionSignature, _T("5"), m_domain);
+        afile.GetEntryValue(szSectionSignature, _T("6"), m_signature);
+
+        UpdateData(FALSE);
+    }
 }

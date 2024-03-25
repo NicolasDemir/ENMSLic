@@ -19,8 +19,9 @@
 #define IDC_BUTTON_ENCRYPT2             1009
 #define IDC_BUTTON_CHECK                1010
 #define IDC_EDIT_MACHINE                1011
-#define IDC_EDIT_MACHINE2               1012
 #define IDC_EDIT_DOMAIN                 1012
+#define IDC_BUTTON_CREATE_SIGNATURE2    1013
+#define IDC_BUTTON_IMPORT_SIGNATURE     1013
 
 // Next default values for new objects
 // 

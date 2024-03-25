@@ -60,4 +60,5 @@ public:
 
 	afx_msg void OnBnClickedButtonEncrypt2();
 	afx_msg void OnBnClickedButtonCheck();
+	afx_msg void OnBnClickedButtonImportSignature();
 };
