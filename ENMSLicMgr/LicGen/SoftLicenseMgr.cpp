@@ -161,6 +161,8 @@ int CSoftLicenseMgr::GenerateLicenseFile(const string& filePath)
         return ERROR_CREATEFILE;
     }
 
+    string szUnlimited = "unlimited";
+
     string szwork = "[" + g_SectionGeneral + "]";
     iniFile << szwork << std::endl;
 
@@ -178,20 +180,44 @@ int CSoftLicenseMgr::GenerateLicenseFile(const string& filePath)
     ssHashGeneral << g_version;
     ssHashGeneral << m_licfeatures.m_version;
 
-    iniFile << g_meters << "=" << m_licfeatures.m_meters << endl;
-
     ssHashGeneral << g_meters;
-    ssHashGeneral << m_licfeatures.m_meters;
 
-    iniFile << g_users << "=" << m_licfeatures.m_users << endl;
+    if (m_licfeatures.m_meters)
+    {
+        iniFile << g_meters << "=" << m_licfeatures.m_meters << endl;
+        ssHashGeneral << m_licfeatures.m_meters;
+    }
+    else
+    {
+        iniFile << g_meters << "=" << szUnlimited << endl;
+        ssHashGeneral << szUnlimited;
+    }
 
     ssHashGeneral << g_users;
-    ssHashGeneral << m_licfeatures.m_users;
 
-    iniFile << g_connections << "=" << m_licfeatures.m_connections << endl;
+    if (m_licfeatures.m_users)
+    {
+        iniFile << g_users << "=" << m_licfeatures.m_users << endl;
+        ssHashGeneral << m_licfeatures.m_users;
+    }
+    else
+    {
+        iniFile << g_users << "=" << szUnlimited << endl;
+        ssHashGeneral << szUnlimited;
+    }
 
     ssHashGeneral << g_connections;
-    ssHashGeneral << m_licfeatures.m_connections;
+
+    if (m_licfeatures.m_connections)
+    {
+        iniFile << g_connections << "=" << m_licfeatures.m_connections << endl;
+        ssHashGeneral << m_licfeatures.m_connections;
+    }
+    else
+    {
+        iniFile << g_connections << "=" << szUnlimited << endl;
+        ssHashGeneral << szUnlimited;
+    }
 
     iniFile << g_product << "=" << m_licfeatures.m_product << endl;
 
