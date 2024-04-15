@@ -30,6 +30,7 @@ struct _LicOptions
     string m_options;
     string m_machine;
     string m_domain;
+    string m_cpu;
     int  m_users = 0;
     int  m_meters = 0;
     int  m_connections = 0;

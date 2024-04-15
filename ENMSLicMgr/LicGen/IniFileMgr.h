@@ -28,6 +28,7 @@ const string g_S2 = "S2";
 const string g_T1 = "T1";
 const string g_E4 = "E4";
 const string g_F1 = "F1";
+const string g_OZ = "OZ";
 
 struct LicenseFeatures;
 

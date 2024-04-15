@@ -43,16 +43,19 @@ public:
     CString GetMacAddressAdvanced();
     BOOL    FillMacAddress(CString& sz, BYTE* p);
     CString GetDomain();
-    CString  GetCPUID();
-
+    CString GetCPUID();
+   
     CString DecryptedPassword(LPCTSTR pszEncryptedPassword);
     CString EncryptedPassword(LPCTSTR pszDecryptedPassword);
     void ByteToRandomizedBytes(BYTE bData, BYTE& bRandomizedData1, BYTE& bRandomizedData2);
     BYTE RandomizedBytesToByte(BYTE bRandomizedData1, BYTE bRandomizedData2);
 
+    CString EncryptString(LPCTSTR pszDecryptedPassword);
+
     CString m_SoftSignature;
     CString m_HardSignature;
     CString m_HadSignatureAdvanced;
+    CString m_CPUID;
     CString m_CRC;
 
     CString         m_licfileName;
@@ -65,6 +68,7 @@ public:
     CString GetHardSignature() { return m_HardSignature; }
     CString GetSoftSignature() { return m_SoftSignature; }
     CString GetHardSignatureAdvanced() { return m_HadSignatureAdvanced; }
+    CString GetCPU() {return m_CPUID;}
     CString GetCRC() { return m_CRC; }
 
     BOOL CheckSectionKey(const CIniFile& IniFile, LPCTSTR pszSection, LPCTSTR pszKeyEntry /* = NULL */, LPCTSTR pszExtraData /* = NULL */);

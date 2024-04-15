@@ -3,10 +3,13 @@
 #include "SoftKeyHelper.h"
 #include "HashAlgorithms.h"
 #include "Cryptor.h"
+#include "EncryptionMgr.h"
 
 #include <iphlpapi.h>
 #pragma comment(lib, "IPHLPAPI.lib")
 
+extern std::string CStringToString(const CString& cstr);
+extern CString StringToCString(const std::string& str);
 
 /**************************************
         Class CSoftInfo
@@ -51,13 +54,25 @@ BOOL CSoftKeyHelper::RetrieveSystemInformation()
 
     m_SoftSignature = EncryptedPassword(SignatureSoft);
     m_HardSignature = EncryptedPassword(m_sMac);
-    m_HadSignatureAdvanced = EncryptedPassword(m_sMacAdvanced);
+
+    m_HadSignatureAdvanced = EncryptString(_T("fig1;1;") + m_sMacAdvanced);
+    m_CPUID = EncryptString(m_sCPU);
+     
 
     m_CRC = EncryptedPassword(SignatureSoft + m_sMac);
 
 
     return TRUE;
 }
+
+CString CSoftKeyHelper::EncryptString(LPCTSTR pszDecryptedPassword)
+{
+    CustomCypher cypher;
+    string sz = CStringToString(pszDecryptedPassword);
+    std::string str = cypher.encrypt(sz);
+    return CString(str.c_str());
+}
+
 
 
 // Windows Product Key Extract

@@ -98,6 +98,7 @@ void CLicGenDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_EDIT_SIGNATURE, m_signature);
     DDX_Text(pDX, IDC_EDIT_DOMAIN, m_domain);
     DDX_Text(pDX, IDC_EDIT_MACHINE, m_machine);
+    DDX_Text(pDX, IDC_EDIT_CPU, m_cpu);
 }
 
 BEGIN_MESSAGE_MAP(CLicGenDlg, CDialogEx)
@@ -277,6 +278,7 @@ BOOL CLicGenDlg::WriteSignatureToFile(CString szfile, CSoftKeyHelper& akey)
         afile.WriteString(_T("4=") + akey.GetTargetName() + _T("\r\n"));
         afile.WriteString(_T("5=") + akey.GetDomain() + _T("\r\n"));
         afile.WriteString(_T("6=") + akey.GetHardSignatureAdvanced() + _T("\r\n"));
+        afile.WriteString(_T("7=") + akey.GetCPU() + _T("\r\n"));
 
         afile.WriteString(_T("[GeneralInfo]\r\n"));
         afile.WriteString(_T("1=\r\n"));
@@ -368,14 +370,53 @@ void CLicGenDlg::OnBnClickedButtonCreate()
     m_softLicMgr.m_licfeatures.m_signature = CStringToString(m_signature);
     m_softLicMgr.m_licfeatures.m_machine = CStringToString(m_machine);
     m_softLicMgr.m_licfeatures.m_domain = CStringToString(m_domain);
+    m_softLicMgr.m_licfeatures.m_cpu = CStringToString(m_cpu);
    
     string szFolder = CStringToString(GetWorkingDirectory());
 
-    int nresult = m_softLicMgr.GenerateLicenseFile(szFolder);
+
+    CString szpath = GetWorkingDirectory() + _T("\\") + _T("lic") + m_serial + _T(".dat");
+    CString szlic = GetWorkingDirectory() + _T("\\") + _T("lic.dat");
+
+    string sfolder = CStringToString(szpath);
+    string slic = CStringToString(szlic);
+
+    int nresult = m_softLicMgr.GenerateLicenseFile(sfolder);
 
     if (nresult == ERROR_NOERROR)
     {
-        CString szfile = GetWorkingDirectory() + _T("\\") + _T("lic-'") + m_serial + _T("'.dat");
+        std::ifstream inputFile(szpath, std::ios::binary); // Open input file
+        std::ofstream outputFile(slic, std::ios::binary); // Open/create output file
+
+        if (!inputFile) {
+            std::cerr << "Failed to open input file!" << std::endl;
+            return;
+        }
+
+        if (!outputFile) {
+            std::cerr << "Failed to open output file!" << std::endl;
+            return;
+        }
+
+        // Read from input file and write to output file
+        outputFile << inputFile.rdbuf();
+
+        // Check for errors during reading/writing
+        if (inputFile.bad()) {
+            std::cerr << "Error occurred while reading from input file!" << std::endl;
+            return;
+        }
+
+        if (outputFile.bad()) {
+            std::cerr << "Error occurred while writing to output file!" << std::endl;
+            return;
+        }
+
+        // Close files
+        inputFile.close();
+        outputFile.close();
+
+        CString szfile = GetWorkingDirectory() + _T("\\") + _T("lic") + m_serial + _T(".dat");
         OpenFileLocation(szfile);
     }
 
@@ -466,6 +507,7 @@ void CLicGenDlg::OnBnClickedButtonEncrypt()
     UpdateData(TRUE);
 
     m_signature = GetEncryptedString(m_signature);
+    m_cpu = GetEncryptedString(m_cpu);
 
     UpdateData(FALSE);
 }
@@ -492,6 +534,7 @@ void CLicGenDlg::OnBnClickedButtonDecrypt()
     UpdateData(TRUE);
 
     m_signature = GetEncryptedString(m_signature, FALSE);
+    m_cpu = GetEncryptedString(m_cpu, FALSE);
 
     UpdateData(FALSE);
 }
@@ -562,6 +605,7 @@ void CLicGenDlg::OnBnClickedButtonImportSignature()
         afile.GetEntryValue(szSectionSignature, _T("4"), m_machine);
         afile.GetEntryValue(szSectionSignature, _T("5"), m_domain);
         afile.GetEntryValue(szSectionSignature, _T("6"), m_signature);
+        afile.GetEntryValue(szSectionSignature, _T("7"), m_cpu);
 
         UpdateData(FALSE);
     }

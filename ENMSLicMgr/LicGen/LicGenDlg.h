@@ -57,6 +57,7 @@ public:
 	CString	m_machine;
 	CString	m_domain;
 	CString	m_m_encodedDomain;
+	CString m_cpu;
 
 	afx_msg void OnBnClickedButtonEncrypt2();
 	afx_msg void OnBnClickedButtonCheck();

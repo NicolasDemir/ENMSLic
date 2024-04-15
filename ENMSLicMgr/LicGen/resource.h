@@ -20,8 +20,9 @@
 #define IDC_BUTTON_CHECK                1010
 #define IDC_EDIT_MACHINE                1011
 #define IDC_EDIT_DOMAIN                 1012
-#define IDC_BUTTON_CREATE_SIGNATURE2    1013
 #define IDC_BUTTON_IMPORT_SIGNATURE     1013
+#define IDC_EDIT_DOMAIN2                1014
+#define IDC_EDIT_CPU                    1014
 
 // Next default values for new objects
 // 

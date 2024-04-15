@@ -148,12 +148,11 @@ string CSoftLicenseMgr::GetOptions()
 
 int CSoftLicenseMgr::GenerateLicenseFile(const string& filePath)
 {
-    string szpath = filePath + "\\" + "lic.dat";
-
+ 
     m_licfeatures.m_guid = GetRandomGUId();
     m_licfeatures.m_options = GetOptions();
 
-    ofstream iniFile(szpath);
+    ofstream iniFile(filePath);
 
     // Check if the file opened successfully
     if (!iniFile.is_open())
@@ -262,6 +261,10 @@ int CSoftLicenseMgr::GenerateLicenseFile(const string& filePath)
     ssHashfeatures << g_S2;
     ssHashfeatures << m_licfeatures.m_signature;
 
+    iniFile << g_OZ << "=" << m_licfeatures.m_cpu<< endl;
+    ssHashfeatures << g_OZ;
+    ssHashfeatures << m_licfeatures.m_cpu;
+
     CustomCypher acypherM(cypherType_machine);
     szwork = acypherM.encrypt(m_licfeatures.m_machine);
     iniFile << g_E4 << "=" << szwork << endl;
@@ -273,7 +276,7 @@ int CSoftLicenseMgr::GenerateLicenseFile(const string& filePath)
     iniFile << g_F1 << "=" << szwork << endl;
     ssHashfeatures << g_F1;
     ssHashfeatures << szwork;
-    
+ 
     szhashed = GetHash(2, ssHashfeatures.str());
     iniFile << g_key << "=" << szhashed << endl;
 
@@ -534,7 +537,7 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
 
     CustomCypher    acypher;
    
-    string szSignature, szOptions, szmachine, szdomain;
+    string szSignature, szOptions, szmachine, szdomain, szCPU;
 
     for (const auto& section : iniData)
     {
@@ -595,6 +598,11 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
                 {
                     CustomCypher acypherM(cypherType_domain);
                     szdomain = acypherM.decrypt(entry.second);
+                }
+                else if (aentry.compare(g_OZ) == 0)
+                {
+                    CustomCypher cipher;
+                    szCPU = cipher.decrypt(entry.second);
                 };
             }
         }
