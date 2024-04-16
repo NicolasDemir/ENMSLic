@@ -9,7 +9,11 @@ using namespace std;
 #define ERROR_FILEINTEGRITY    101
 #define ERROR_INVALIDFILE      102
 #define ERROR_FINGERPRINT       150
-#define ERROR_RETRIEVING_FINGERPRINt    151
+#define ERROR_PARTIAL_FINGERPRINT   151
+#define ERROR_RETRIEVING_FINGERPRINt   155
+#define ERROR_MACHINE          160
+#define ERROR_DOMAIN           161
+#define ERROR_CPU              162
 
 const string g_entryMeters = "meters";
 const string g_entryUsers = "users";
@@ -29,6 +33,8 @@ const string g_S2 = "S2";
 const string g_T1 = "T1";
 const string g_E4 = "E4";
 const string g_F1 = "F1";
+const string g_OZ = "OZ";
+
 
 struct _LicOptions
 {
@@ -48,17 +54,20 @@ struct _LicOptions
     string m_signature = "";
 };
 
-class CSoftLicHelper
+class CSoftLicenseMgr
 {
 public:
 
-    CSoftLicHelper() {};
+    CSoftLicenseMgr() {};
     string GetEncryptedString(const string& input, int key, string salt, int randomlength);
     string GetHash(int Tyoe, string input);
     int CheckFile(const string& filePath, const string& fileOutput);
     int CheckoutLicense(const string& filePath, const string& fileouput, _LicOptions& options);
-    int CheckMachineFingerPrint(const string& szfingerprint);
+    int CheckMachineFingerPrint(const string& szfingerprint, const string& szmachine, const string& szdomain, const string& szcpu);
     int CompareFingerPrint(const string& szfingerprint);
+    string getMachineName();
+    string getComputerDomain();
+    string getCPU();
     string GetMAcAdress(int& error);
     bool RetrieveSystemInformation();
     int ExtractOptions(const string& szoptins, int& meters, int& users, int& connections, int& product, int& update, int& version);

@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "licenseerror.h"
 
-#include <iostream>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -397,6 +396,61 @@ string CSoftLicenseMgr::GetMAcAdress(int& error)
 }
 
 
+std::string CSoftLicenseMgr::getMachineName()
+{
+    wchar_t computerName[MAX_COMPUTERNAME_LENGTH + 1];
+    DWORD size = MAX_COMPUTERNAME_LENGTH + 1;
+
+    if (::GetComputerNameW(computerName, &size) == FALSE) 
+    {
+        return "";
+    }
+
+    int bufferSize = WideCharToMultiByte(CP_UTF8, 0, computerName, -1, nullptr, 0, nullptr, nullptr);
+    std::string result(bufferSize, '\0');
+    if (WideCharToMultiByte(CP_UTF8, 0, computerName, -1, &result[0], bufferSize, nullptr, nullptr) == 0)
+    {
+        return result;
+    }
+
+    return result;
+}
+
+std::string CSoftLicenseMgr::getComputerDomain()
+{
+    wchar_t domain[MAX_COMPUTERNAME_LENGTH + 1];
+    DWORD size = MAX_COMPUTERNAME_LENGTH + 1;
+
+    if (GetComputerNameEx(ComputerNameDnsDomain, domain, &size)) 
+    {
+        int bufferSize = WideCharToMultiByte(CP_UTF8, 0, domain, -1, nullptr, 0, nullptr, nullptr);
+        std::string result(bufferSize, '\0');
+        if (WideCharToMultiByte(CP_UTF8, 0, domain, -1, &result[0], bufferSize, nullptr, nullptr) == 0)
+        {
+            return result;
+        }
+    }
+    else
+    {
+       
+        return "";
+    }
+}
+
+std::string CSoftLicenseMgr::getCPU()
+{
+    int CPUInfo[4] = { -1 };
+    __cpuid(CPUInfo, 0);
+   
+    string szreturn = std::to_string(CPUInfo[0]);
+    for (int i = 1; i < 4; i++)
+    {
+        szreturn = szreturn + "-" + std::to_string(CPUInfo[i]);
+    }
+ 
+    return szreturn;
+}
+
 int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
 {
     int error = ERROR_NOERROR;
@@ -427,6 +481,9 @@ int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
 
     bool bfind = false;
 
+    int nFind = 0;
+    int nNotfind = 0;
+
     for (int i = 0; i < tokenGiven.size(); i++)
     {
         bfind = false;
@@ -436,16 +493,27 @@ int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
             if (tokenCurrent[j].compare(tokenGiven[i]) == 0)
             {
                 bfind = true;
+                nFind += 1;
                 break;
             }
         }
 
         if (!bfind)
-            return ERROR_FINGERPRINT;
+        {
+            nNotfind += 1;
+        }
     }
 
+    if (nFind == 0)
+        return ERROR_FINGERPRINT;
 
-    return ERROR_NOERROR;
+    if(nNotfind == 0)
+        return ERROR_NOERROR;
+
+    if (nNotfind > nFind + 2)
+        return ERROR_FINGERPRINT;
+
+    return ERROR_PARTIAL_FINGERPRINT;
 }
 
 int CSoftLicenseMgr::ExtractOptions(const string& szoptions, int& meters, int& users, int& connections, int& product, int& update, int& version)
@@ -480,7 +548,7 @@ int CSoftLicenseMgr::ExtractOptions(const string& szoptions, int& meters, int& u
     return ERROR_NOERROR;
 }
 
-int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint)
+int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint, const string& szmachine, const string& szdomain, const string& szcpu)
 {
     if (szfingerprint.length() == 0)
         return ERROR_INVALIDFILE;
@@ -514,12 +582,59 @@ int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint)
         return ERROR_INVALIDFILE;
     }
 
-    int error = CompareFingerPrint(tokens[2]);
-    
-    if (error != ERROR_NOERROR)
-        return error;
+    int error = ERROR_NOERROR;
 
-    return ERROR_NOERROR;
+    //finger print
+    int errorFingerPrint = CompareFingerPrint(tokens[2]);
+
+    if (errorFingerPrint == ERROR_FINGERPRINT)
+        return ERROR_FINGERPRINT;
+
+    //machine name
+    int errorMachine = ERROR_NOERROR;
+    string szCurrentMachine = getMachineName();
+    if (szCurrentMachine.compare(szmachine) != 0)
+    {
+        errorMachine = ERROR_MACHINE;
+    }
+
+    //domain
+    int errorDomaine = ERROR_NOERROR;   
+    string szCurrentDomain = getComputerDomain();
+    if (szCurrentDomain.compare(szdomain) != 0)
+    {
+        errorDomaine = ERROR_DOMAIN;
+    }
+
+    //CPU
+    int errorCPU = ERROR_NOERROR;
+    std::string szCurrentCPU = getCPU();
+    if (szCurrentCPU.compare(szcpu) != 0)
+    {
+        errorCPU = ERROR_CPU;
+    }
+
+    if (errorFingerPrint == ERROR_NOERROR)
+    {
+        if ((errorMachine == ERROR_NOERROR) || (errorCPU == ERROR_NOERROR))
+            return ERROR_NOERROR;
+    }
+    else
+    {
+        if((errorMachine == ERROR_NOERROR) && (errorCPU == ERROR_NOERROR))
+            return ERROR_NOERROR;
+
+        if (szCurrentDomain.length())
+        {
+            if ((errorMachine == ERROR_NOERROR) && (errorDomaine == ERROR_NOERROR))
+                return ERROR_NOERROR;
+
+            if ((errorCPU == ERROR_NOERROR) && (errorDomaine == ERROR_NOERROR))
+                return ERROR_NOERROR;
+        }
+    }
+ 
+    return ERROR_FINGERPRINT;
 }
 
 int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileouput, _LicOptions& options)
@@ -601,14 +716,17 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
                 }
                 else if (aentry.compare(g_OZ) == 0)
                 {
-                    CustomCypher cipher;
-                    szCPU = cipher.decrypt(entry.second);
+                    if (entry.second.length())
+                    {
+                        CustomCypher cipher;
+                        szCPU = cipher.decrypt(entry.second);
+                    }
                 };
             }
         }
     }
 
-    error = CheckMachineFingerPrint(szSignature);
+    error = CheckMachineFingerPrint(szSignature, szmachine, szdomain, szCPU);
     if (error != ERROR_NOERROR)
         return error;
 

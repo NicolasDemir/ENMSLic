@@ -533,8 +533,10 @@ void CLicGenDlg::OnBnClickedButtonDecrypt()
 {
     UpdateData(TRUE);
 
-    m_signature = GetEncryptedString(m_signature, FALSE);
-    m_cpu = GetEncryptedString(m_cpu, FALSE);
+    if(m_signature.GetLength())
+        m_signature = GetEncryptedString(m_signature, FALSE);
+   if(m_cpu.GetLength())
+        m_cpu = GetEncryptedString(m_cpu, FALSE);
 
     UpdateData(FALSE);
 }
@@ -570,7 +572,9 @@ void CLicGenDlg::OnBnClickedButtonCheck()
 
     _LicOptions options;
     int nreturn = m_softLicMgr.CheckoutLicense(afile, afileOutput, options);
-    int i = nreturn;
+    CString sz;
+    sz.Format(_T("%d"), nreturn);
+    ::AfxMessageBox(sz);
 }
 
 

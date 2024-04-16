@@ -27,7 +27,7 @@
     <ClInclude Include="EncryptionMgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SoftLicHelper.h">
+    <ClInclude Include="SoftLicenseMgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClCompile Include="CLicMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SoftLicHelper.cpp">
+    <ClCompile Include="SoftLicenseMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

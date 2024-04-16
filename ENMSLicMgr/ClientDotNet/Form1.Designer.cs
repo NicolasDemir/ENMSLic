@@ -30,6 +30,7 @@
         {
             button3 = new Button();
             groupBox3 = new GroupBox();
+            tbError = new TextBox();
             tbReturn = new TextBox();
             label3 = new Label();
             tbFilePath = new TextBox();
@@ -46,7 +47,6 @@
             buttonCheckout = new Button();
             groupBox1 = new GroupBox();
             m_list = new ListView();
-            tbError = new TextBox();
             groupBox3.SuspendLayout();
             groupBox2.SuspendLayout();
             groupBox1.SuspendLayout();
@@ -79,6 +79,13 @@
             groupBox3.TabStop = false;
             groupBox3.Text = "Licensing ";
             // 
+            // tbError
+            // 
+            tbError.Location = new Point(156, 55);
+            tbError.Name = "tbError";
+            tbError.Size = new Size(332, 23);
+            tbError.TabIndex = 34;
+            // 
             // tbReturn
             // 
             tbReturn.Location = new Point(109, 53);
@@ -102,7 +109,7 @@
             tbFilePath.Name = "tbFilePath";
             tbFilePath.Size = new Size(270, 23);
             tbFilePath.TabIndex = 31;
-            tbFilePath.Text = "License\\lic.dat";
+            tbFilePath.Text = "lic.dat";
             // 
             // brFilePath
             // 
@@ -227,13 +234,6 @@
             m_list.TabIndex = 0;
             m_list.UseCompatibleStateImageBehavior = false;
             m_list.View = View.Details;
-            // 
-            // tbError
-            // 
-            tbError.Location = new Point(156, 55);
-            tbError.Name = "tbError";
-            tbError.Size = new Size(332, 23);
-            tbError.TabIndex = 34;
             // 
             // Form1
             // 

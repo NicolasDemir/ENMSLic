@@ -53,9 +53,12 @@ public :
     string GetHash(int Tyoe, string input);
     int CheckFile(const string& filePath, const string& fileOutput);
     int CheckoutLicense(const string& filePath, const string& fileouput, _LicOptions& options);
-    int CheckMachineFingerPrint(const string& szfingerprint);
+    int CheckMachineFingerPrint(const string& szfingerprint, const string& szmachine, const string& szdomain, const string& szCPU);
     int CompareFingerPrint(const string& szfingerprint);
     string GetMAcAdress(int& error);
+    string getMachineName();
+    string getComputerDomain();
+    string getCPU();
     bool RetrieveSystemInformation();
     int ExtractOptions(const string& szoptins, int& meters, int& users, int& connections, int& product, int& update, int& version);
     string GetRandomGUId();

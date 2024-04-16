@@ -46,7 +46,8 @@ namespace ClientDotNet
 
         private void button6_Click(object sender, EventArgs e)
         {
-            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string currentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
             string szPath = tbFilePath.Text;
             string fullPath = Path.Combine(currentDirectory, szPath);
 

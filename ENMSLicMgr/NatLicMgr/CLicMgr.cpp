@@ -1,9 +1,8 @@
 #include "pch.h"
 #include "CLicMgr.h"
 
-
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <cstdint>
@@ -15,9 +14,7 @@ using namespace std;
 
 #include "toolbox.h"
 #include "EncryptionMgr.h"
-#include "softlichelper.h"
-
-
+#include "SoftLicenseMgr.h"
 
 
 
@@ -26,7 +23,7 @@ extern "C" __declspec(dllexport) int CheckOut(char* query, char* presponse, char
 	string afile = filepath;
 	string afileOutput = "liclog.txt";
 
-	CSoftLicHelper helper;
+	CSoftLicenseMgr helper;
 	_LicOptions options;
 	int nreturn = helper.CheckoutLicense(filepath, afileOutput, options);
 
