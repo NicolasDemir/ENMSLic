@@ -1,5 +1,7 @@
 #include "pch.h"
 
+
+
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -130,13 +132,12 @@ string CSoftLicenseMgr::GetOptions()
 
 int CSoftLicenseMgr::CheckFile(const string& filePath, const string& fileOutput)
 {
+    string filename = fileOutput;
+    remove(filename.c_str());
+
     ifstream file(filePath);
     if (!file.good())
         return ERROR_FILE_DONT_EXIST;
-    file.close();
-
-    string filename = fileOutput;
-    remove(filename.c_str());
 
     vector<pair<string, vector<pair<string, string>>>> iniData = parseIniFile(filePath);
 
@@ -238,6 +239,7 @@ string CSoftLicenseMgr::GetMAcAdress(int& error)
     return macAddresses.str();
 }
 
+
 std::string CSoftLicenseMgr::getMachineName()
 {
     wchar_t computerName[MAX_COMPUTERNAME_LENGTH + 1];
@@ -248,35 +250,18 @@ std::string CSoftLicenseMgr::getMachineName()
         return "";
     }
 
-    int bufferSize = WideCharToMultiByte(CP_UTF8, 0, computerName, -1, nullptr, 0, nullptr, nullptr);
-    std::string result(bufferSize, '\0');
-    if (WideCharToMultiByte(CP_UTF8, 0, computerName, -1, &result[0], bufferSize, nullptr, nullptr) == 0)
-    {
-        return result;
-    }
-
-    return result;
+    std::wstring wideString(computerName);
+    return std::string(wideString.begin(), wideString.end());
 }
 
 std::string CSoftLicenseMgr::getComputerDomain()
 {
-    wchar_t domain[MAX_COMPUTERNAME_LENGTH + 1];
-    DWORD size = MAX_COMPUTERNAME_LENGTH + 1;
+    DWORD bufSize = MAX_PATH;
+    wchar_t domainNameBuf[MAX_PATH];
+    GetComputerNameEx(ComputerNameDnsDomain, domainNameBuf, &bufSize);
 
-    if (GetComputerNameEx(ComputerNameDnsDomain, domain, &size))
-    {
-        int bufferSize = WideCharToMultiByte(CP_UTF8, 0, domain, -1, nullptr, 0, nullptr, nullptr);
-        std::string result(bufferSize, '\0');
-        if (WideCharToMultiByte(CP_UTF8, 0, domain, -1, &result[0], bufferSize, nullptr, nullptr) == 0)
-        {
-            return result;
-        }
-    }
-    else
-    {
-
-        return "";
-    }
+    std::wstring wideString(domainNameBuf);
+    return std::string(wideString.begin(), wideString.end());
 }
 
 std::string CSoftLicenseMgr::getCPU()
@@ -349,7 +334,7 @@ int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
     if (nFind == 0)
         return ERROR_FINGERPRINT;
 
-    if (nNotfind == 0)
+    if(nNotfind == 0)
         return ERROR_NOERROR;
 
     if (nNotfind > nFind + 2)
@@ -434,7 +419,7 @@ int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint, const 
 
     //machine name
     int errorMachine = ERROR_NOERROR;
-    string szCurrentMachine = getMachineName();
+    std::string szCurrentMachine = getMachineName();
     if (szCurrentMachine.compare(szmachine) != 0)
     {
         errorMachine = ERROR_MACHINE;
@@ -442,7 +427,7 @@ int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint, const 
 
     //domain
     int errorDomaine = ERROR_NOERROR;
-    string szCurrentDomain = getComputerDomain();
+    std::string szCurrentDomain = getComputerDomain();
     if (szCurrentDomain.compare(szdomain) != 0)
     {
         errorDomaine = ERROR_DOMAIN;
@@ -450,23 +435,30 @@ int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint, const 
 
     //CPU
     int errorCPU = ERROR_NOERROR;
+
+    if (szcpu.length())
+    {
     std::string szCurrentCPU = getCPU();
     if (szCurrentCPU.compare(szcpu) != 0)
     {
         errorCPU = ERROR_CPU;
     }
+    }
 
     if (errorFingerPrint == ERROR_NOERROR)
     {
-        if ((errorMachine == ERROR_NOERROR) || (errorCPU == ERROR_NOERROR))
+        bool bMAchineOK = (errorMachine == ERROR_NOERROR) ? TRUE : FALSE;
+        bool bCPUOK = (errorCPU == ERROR_NOERROR) ? TRUE : FALSE;
+
+        if (bMAchineOK || bCPUOK)
             return ERROR_NOERROR;
     }
     else
     {
-        if ((errorMachine == ERROR_NOERROR) && (errorCPU == ERROR_NOERROR))
-            return ERROR_NOERROR;
+            if ((errorMachine == ERROR_NOERROR) && (errorCPU == ERROR_NOERROR))
+                return ERROR_NOERROR;
 
-        if (szCurrentDomain.length())
+        if (szdomain.length())
         {
             if ((errorMachine == ERROR_NOERROR) && (errorDomaine == ERROR_NOERROR))
                 return ERROR_NOERROR;
@@ -527,7 +519,7 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
                 }
                 else if (aentry.compare(g_entrySerial) == 0)
                 {
-                    serial = entry.second;
+                     serial = entry.second;
                 }
                 else if (aentry.compare(g_entryUpdate) == 0)
                 {
@@ -558,9 +550,12 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
                 }
                 else if (aentry.compare(g_OZ) == 0)
                 {
-                    CustomCypher acypher;
-                    szCPU = acypher.decrypt(entry.second);
+                    if (entry.second.length())
+                    {
+                        CustomCypher cipher;
+                        szCPU = cipher.decrypt(entry.second);
                 }
+                };
             }
         }
     }

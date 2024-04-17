@@ -44,6 +44,7 @@ struct _LicOptions
     string m_options;
     string m_machine;
     string m_domain;
+    string m_cpu;
     int  m_users = 0;
     int  m_meters = 0;
     int  m_connections = 0;
@@ -63,7 +64,7 @@ public:
     string GetHash(int Tyoe, string input);
     int CheckFile(const string& filePath, const string& fileOutput);
     int CheckoutLicense(const string& filePath, const string& fileouput, _LicOptions& options);
-    int CheckMachineFingerPrint(const string& szfingerprint, const string& szmachine, const string& szdomain, const string& szcpu);
+    int CheckMachineFingerPrint(const string& szfingerprint, const string& szmachine, const string& szdomain, const string& szCPU);
     int CompareFingerPrint(const string& szfingerprint);
     string getMachineName();
     string getComputerDomain();
