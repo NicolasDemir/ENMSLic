@@ -14,6 +14,7 @@
 #include <vector>
 #include <locale>
 #include <codecvt>
+#include <chrono>
 
 using namespace std;
 
@@ -159,6 +160,8 @@ int CSoftLicenseMgr::GenerateLicenseFile(const string& filePath)
         return ERROR_CREATEFILE;
     }
 
+   
+   
     string szUnlimited = "unlimited";
 
     string szwork = "[" + g_SectionGeneral + "]";
@@ -716,14 +719,16 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
         }
     }
 
-    error = CheckMachineFingerPrint(szSignature, szmachine, szdomain, szCPU);
-    if (error != ERROR_NOERROR)
-        return error;
-
     error = ExtractOptions(szOptions, options.m_meters, options.m_users, options.m_connections, options.m_product, options.m_update, options.m_version);
     if (error != ERROR_NOERROR)
         return error;
 
+
+    error = CheckMachineFingerPrint(szSignature, szmachine, szdomain, szCPU);
+    if (error != ERROR_NOERROR)
+        return error;
+
+ 
 	options.m_serial = serial;
 
     return ERROR_NOERROR;

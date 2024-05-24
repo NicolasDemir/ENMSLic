@@ -360,6 +360,9 @@ void CLicGenDlg::OnBnClickedButtonCreate()
 
     m_serial = sz;
 
+    sz.Format(_T("%d-%02d-%02d"), local_tm.tm_year + 1900, local_tm.tm_mon+1, local_tm.tm_mday);
+    
+  
     m_softLicMgr.m_licfeatures.m_serial = CStringToString(m_serial);
     m_softLicMgr.m_licfeatures.m_product = 1;
     m_softLicMgr.m_licfeatures.m_update = 1;
@@ -371,6 +374,8 @@ void CLicGenDlg::OnBnClickedButtonCreate()
     m_softLicMgr.m_licfeatures.m_machine = CStringToString(m_machine);
     m_softLicMgr.m_licfeatures.m_domain = CStringToString(m_domain);
     m_softLicMgr.m_licfeatures.m_cpu = CStringToString(m_cpu);
+    m_softLicMgr.m_licfeatures.m_activation = CStringToString(sz);
+
    
     string szFolder = CStringToString(GetWorkingDirectory());
 
