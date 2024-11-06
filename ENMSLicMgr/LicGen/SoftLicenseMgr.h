@@ -38,6 +38,14 @@ struct _LicOptions
     int m_product = 0;
     int m_version = 0;
 
+    int m_nTempo = 0;
+    int m_nTempoDuration = 0;
+    int m_nTempoExpYear = 0;
+    int m_nTempoExpMonth = 0;
+    int m_nTempoExpDay = 0;
+    int m_nTempoStartYear = 0;
+    int m_nTempoStartMonth = 0;
+    int m_nTempoStartDay = 0;
     string m_signature = "";
 };
 
@@ -60,7 +68,7 @@ public :
     string getComputerDomain();
     string getCPU();
     bool RetrieveSystemInformation();
-    int ExtractOptions(const string& szoptins, int& meters, int& users, int& connections, int& product, int& update, int& version);
+    int ExtractOptions(const string& szoptins, int& meters, int& users, int& connections, int& product, int& update, int& version, int& tempo, int& duration, int& expYear, int& expMonth, int& expDay, int& startYear, int& startMonth, int& startDay);
     string GetRandomGUId();
     string GetOptions();
 

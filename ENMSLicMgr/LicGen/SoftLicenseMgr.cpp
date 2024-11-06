@@ -148,7 +148,6 @@ string CSoftLicenseMgr::GetOptions()
 
 int CSoftLicenseMgr::GenerateLicenseFile(const string& filePath)
 {
- 
     m_licfeatures.m_guid = GetRandomGUId();
     m_licfeatures.m_options = GetOptions();
 
@@ -160,8 +159,6 @@ int CSoftLicenseMgr::GenerateLicenseFile(const string& filePath)
         return ERROR_CREATEFILE;
     }
 
-   
-   
     string szUnlimited = "unlimited";
 
     string szwork = "[" + g_SectionGeneral + "]";
@@ -502,7 +499,7 @@ int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
     return ERROR_PARTIAL_FINGERPRINT;
 }
 
-int CSoftLicenseMgr::ExtractOptions(const string& szoptions, int& meters, int& users, int& connections, int& product, int& update, int& version)
+int CSoftLicenseMgr::ExtractOptions(const string& szoptions, int& meters, int& users, int& connections, int& product, int& update, int& version, int& tempo, int& duration, int& expYear, int& expMonth, int& expDay, int& startYear, int& startMonth, int& startDay)
 {
     //proceed signature
     istringstream streamoptions(szoptions);
@@ -719,7 +716,9 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
         }
     }
 
-    error = ExtractOptions(szOptions, options.m_meters, options.m_users, options.m_connections, options.m_product, options.m_update, options.m_version);
+    error = ExtractOptions(szOptions, options.m_meters, options.m_users, options.m_connections,
+        options.m_product, options.m_update, options.m_version, options.m_nTempo, options.m_nTempoDuration, options.m_nTempoExpYear, options.m_nTempoExpMonth, options.m_nTempoExpDay,
+        options.m_nTempoStartYear, options.m_nTempoStartMonth, options.m_nTempoStartDay);
     if (error != ERROR_NOERROR)
         return error;
 

@@ -10,4 +10,8 @@
     <LocalDebuggerWorkingDirectory>E:\ENMSLicMgr\ENMSLic\ENMSLicMgr\x64\Release\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommand>E:\ENMSLic\ENMSLicMgr\x64\Debug\ClientDotNet.exe</LocalDebuggerCommand>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>

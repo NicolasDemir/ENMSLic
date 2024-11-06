@@ -15,6 +15,11 @@ using namespace std;
 #define ERROR_DOMAIN           161
 #define ERROR_CPU              162
 
+
+#define ERROR_LICENSE_EXPIRED  200
+#define ERROR_ACTIVATION_TIME  210
+
+
 const string g_entryMeters = "meters";
 const string g_entryUsers = "users";
 const string g_entryConnections = "connections";
@@ -51,7 +56,14 @@ struct _LicOptions
     int m_update = 0;
     int m_product = 0;
     int m_version = 0;
-
+    int m_TemporaryLicenseDuration = 0;
+    int m_expirationYear = 0;
+    int m_expirationMonth = 0;
+    int m_expirationDay = 0;
+    int m_activationYear = 0;
+    int m_activationMonth = 0;
+    int m_activationDay = 0;
+    int m_TemporaryLicense = 0;
     string m_signature = "";
 };
 
@@ -63,7 +75,7 @@ public:
     string GetEncryptedString(const string& input, int key, string salt, int randomlength);
     string GetHash(int Tyoe, string input);
     int CheckFile(const string& filePath, const string& fileOutput);
-    int CheckoutLicense(const string& filePath, const string& fileouput, _LicOptions& options);
+    int CheckoutLicense(const string& filePath, const string& fileouput, _LicOptions& options, bool version1);
     int CheckMachineFingerPrint(const string& szfingerprint, const string& szmachine, const string& szdomain, const string& szCPU);
     int CompareFingerPrint(const string& szfingerprint);
     string getMachineName();
@@ -71,7 +83,7 @@ public:
     string getCPU();
     string GetMAcAdress(int& error);
     bool RetrieveSystemInformation();
-    int ExtractOptions(const string& szoptins, int& meters, int& users, int& connections, int& product, int& update, int& version);
+    int ExtractOptions(const string& szoptions, int& meters, int& users, int& connections, int& product, int& update, int& version, int& tempo, int& duration, int& expYear, int& expMonth, int& expDay, int& startYear, int& startMonth, int& startDay);
     string GetOptions();
 
     _LicOptions m_licfeatures;

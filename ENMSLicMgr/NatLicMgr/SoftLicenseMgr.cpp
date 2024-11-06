@@ -16,6 +16,9 @@
 #include <locale>
 #include <codecvt>
 #include <intrin.h>
+#include <chrono>
+#include <ctime>
+
 
 using namespace std;
 
@@ -176,6 +179,7 @@ int CSoftLicenseMgr::CheckFile(const string& filePath, const string& fileOutput)
                 else
                 {
                     bcheck = false;
+                    return ERROR_FILEINTEGRITY;
                 }
             }
         }
@@ -343,7 +347,7 @@ int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
     return ERROR_PARTIAL_FINGERPRINT;
 }
 
-int CSoftLicenseMgr::ExtractOptions(const string& szoptions, int& meters, int& users, int& connections, int& product, int& update, int& version)
+int CSoftLicenseMgr::ExtractOptions(const string& szoptions, int& meters, int& users, int& connections, int& product, int& update, int& version, int& tempo, int& duration, int& expYear, int& expMonth,int& expDay, int& startYear, int& startMonth, int& startDay)
 {
     //proceed signature
     istringstream streamoptions(szoptions);
@@ -370,6 +374,17 @@ int CSoftLicenseMgr::ExtractOptions(const string& szoptions, int& meters, int& u
     catch (...)
     {
         return ERROR_INVALIDFILE;
+    }
+
+    if (s == 14)
+    {
+        duration = ::atoi(tokenoptions[7].c_str());
+        expYear = ::atoi(tokenoptions[8].c_str());
+        expMonth = ::atoi(tokenoptions[9].c_str());
+        expDay = ::atoi(tokenoptions[10].c_str());
+        startYear = ::atoi(tokenoptions[11].c_str());
+        startMonth = ::atoi(tokenoptions[12].c_str());
+        startDay = ::atoi(tokenoptions[13].c_str());
     }
 
     return ERROR_NOERROR;
@@ -471,7 +486,7 @@ int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint, const 
     return ERROR_FINGERPRINT;
 }
 
-int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileouput, _LicOptions& options)
+int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileouput, _LicOptions& options, bool version1)
 {
     std::remove(fileouput.c_str());
 
@@ -564,11 +579,47 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
     if (error != ERROR_NOERROR)
         return error;
 
-    error = ExtractOptions(szOptions, options.m_meters, options.m_users, options.m_connections, options.m_product, options.m_update, options.m_version);
+    error = ExtractOptions(szOptions, options.m_meters, options.m_users, options.m_connections, options.m_product, options.m_update,
+        options.m_version, options.m_TemporaryLicense, options.m_TemporaryLicenseDuration, options.m_expirationYear, options.m_expirationMonth, options.m_expirationDay,
+        options.m_activationYear, options.m_activationMonth, options.m_activationDay);
     if (error != ERROR_NOERROR)
         return error;
 
     options.m_serial = serial;
 
+    if (version1)
+        return ERROR_NOERROR;
+
+    if (options.m_version && (options.m_TemporaryLicenseDuration>0) )
+    {
+        tm date = {};
+        date.tm_year = options.m_expirationYear - 1900;
+        date.tm_mon = options.m_expirationMonth-1;
+        date.tm_mday = options.m_expirationDay;
+        date.tm_hour = 23;
+        date.tm_min = 59;
+        date.tm_sec = 59;
+
+        tm Actdate = {};
+        Actdate.tm_year = options.m_activationYear - 1900;
+        Actdate.tm_mon = options.m_activationMonth-1;
+        Actdate.tm_mday = options.m_activationDay;
+        Actdate.tm_hour = 0;
+        Actdate.tm_min = 0;
+        Actdate.tm_sec = 0;
+
+        time_t expirationTime = mktime(&date);
+        time_t activationtime = mktime(&Actdate);
+        time_t now = std::time(nullptr);
+
+        tm localTime;
+        localtime_s(&localTime, &now);
+       
+        if (now > expirationTime)
+            return ERROR_LICENSE_EXPIRED;
+
+        if (activationtime > now)
+            return ERROR_ACTIVATION_TIME;
+    }
     return ERROR_NOERROR;
 }

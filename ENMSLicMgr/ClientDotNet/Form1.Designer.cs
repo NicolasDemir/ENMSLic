@@ -30,6 +30,7 @@
         {
             button3 = new Button();
             groupBox3 = new GroupBox();
+            button1 = new Button();
             tbError = new TextBox();
             tbReturn = new TextBox();
             label3 = new Label();
@@ -54,7 +55,7 @@
             // 
             // button3
             // 
-            button3.Location = new Point(449, 506);
+            button3.Location = new Point(449, 527);
             button3.Name = "button3";
             button3.Size = new Size(75, 23);
             button3.TabIndex = 6;
@@ -64,6 +65,7 @@
             // 
             // groupBox3
             // 
+            groupBox3.Controls.Add(button1);
             groupBox3.Controls.Add(tbError);
             groupBox3.Controls.Add(tbReturn);
             groupBox3.Controls.Add(label3);
@@ -72,12 +74,22 @@
             groupBox3.Controls.Add(label1);
             groupBox3.Controls.Add(groupBox2);
             groupBox3.Controls.Add(buttonCheckout);
-            groupBox3.Location = new Point(12, 268);
+            groupBox3.Location = new Point(12, 289);
             groupBox3.Name = "groupBox3";
             groupBox3.Size = new Size(512, 227);
             groupBox3.TabIndex = 7;
             groupBox3.TabStop = false;
             groupBox3.Text = "Licensing ";
+            // 
+            // button1
+            // 
+            button1.Location = new Point(411, 25);
+            button1.Name = "button1";
+            button1.Size = new Size(77, 23);
+            button1.TabIndex = 35;
+            button1.Text = "Checkout 2";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // tbError
             // 
@@ -107,18 +119,19 @@
             // 
             tbFilePath.Location = new Point(109, 25);
             tbFilePath.Name = "tbFilePath";
-            tbFilePath.Size = new Size(270, 23);
+            tbFilePath.Size = new Size(181, 23);
             tbFilePath.TabIndex = 31;
             tbFilePath.Text = "lic.dat";
             // 
             // brFilePath
             // 
-            brFilePath.Location = new Point(379, 25);
+            brFilePath.Location = new Point(292, 25);
             brFilePath.Name = "brFilePath";
-            brFilePath.Size = new Size(33, 23);
+            brFilePath.Size = new Size(25, 23);
             brFilePath.TabIndex = 30;
             brFilePath.Text = "...";
             brFilePath.UseVisualStyleBackColor = true;
+            brFilePath.Click += brFilePath_Click;
             // 
             // label1
             // 
@@ -208,9 +221,9 @@
             // 
             // buttonCheckout
             // 
-            buttonCheckout.Location = new Point(418, 25);
+            buttonCheckout.Location = new Point(330, 25);
             buttonCheckout.Name = "buttonCheckout";
-            buttonCheckout.Size = new Size(70, 23);
+            buttonCheckout.Size = new Size(77, 23);
             buttonCheckout.TabIndex = 3;
             buttonCheckout.Text = "Checkout";
             buttonCheckout.UseVisualStyleBackColor = true;
@@ -221,7 +234,7 @@
             groupBox1.Controls.Add(m_list);
             groupBox1.Location = new Point(12, 12);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(512, 239);
+            groupBox1.Size = new Size(512, 257);
             groupBox1.TabIndex = 8;
             groupBox1.TabStop = false;
             groupBox1.Text = "License options";
@@ -230,7 +243,7 @@
             // 
             m_list.Location = new Point(21, 22);
             m_list.Name = "m_list";
-            m_list.Size = new Size(467, 200);
+            m_list.Size = new Size(467, 215);
             m_list.TabIndex = 0;
             m_list.UseCompatibleStateImageBehavior = false;
             m_list.View = View.Details;
@@ -239,7 +252,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(541, 543);
+            ClientSize = new Size(541, 560);
             Controls.Add(groupBox1);
             Controls.Add(groupBox3);
             Controls.Add(button3);
@@ -276,5 +289,6 @@
         private TextBox tbReturn;
         private Label label3;
         private TextBox tbError;
+        private Button button1;
     }
 }
