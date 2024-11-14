@@ -47,3 +47,6 @@
 /ENMSLicMgr/ClientDotNet/bin/Release/net7.0-windows/License
 /ENMSLicMgr/ClientDotNet/bin/Release/net7.0-windows
 /ENMSLicMgr/LicGen/LicGen.aps
+/ENMSLicMgr/Shortcur to client release.lnk
+/ENMSLicMgr/ClientDotNet/bin/Release
+/.gitignore
