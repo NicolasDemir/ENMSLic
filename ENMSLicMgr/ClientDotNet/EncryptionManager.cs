@@ -94,6 +94,7 @@ namespace ClientDotNet
                 case 151: return "Unable to extract computer fingerprint";
                 case 200: return "License has expired";
                 case 210: return "Activation date in the future";
+                case 300: return "Blank license";
             }
 
             return "Unexpected license error";

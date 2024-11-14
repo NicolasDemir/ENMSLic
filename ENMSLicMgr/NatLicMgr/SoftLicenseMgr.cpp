@@ -488,9 +488,12 @@ int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint, const 
 
 int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileouput, _LicOptions& options, bool version1)
 {
+    string szBLANK = "BLANK";
+
     std::remove(fileouput.c_str());
 
     int error = ERROR_NOERROR;
+    bool blank = false;
 
     error = CheckFile(szpath, fileouput);
 
@@ -540,6 +543,11 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
                 {
                     //        *update = stoi(avalue);
                 }
+                else if (aentry.compare(g_entryMachine) == 0)
+                {
+                    if (entry.second == szBLANK && !version1)
+                        blank = true;
+                }
             }
             else if (asection == g_sectionFeatures)
             {
@@ -575,9 +583,12 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
         }
     }
 
-    error = CheckMachineFingerPrint(szSignature, szmachine, szdomain, szCPU);
-    if (error != ERROR_NOERROR)
-        return error;
+    if (version1 || !blank)
+    {
+        error = CheckMachineFingerPrint(szSignature, szmachine, szdomain, szCPU);
+        if (error != ERROR_NOERROR)
+            return error;
+    }
 
     error = ExtractOptions(szOptions, options.m_meters, options.m_users, options.m_connections, options.m_product, options.m_update,
         options.m_version, options.m_TemporaryLicense, options.m_TemporaryLicenseDuration, options.m_expirationYear, options.m_expirationMonth, options.m_expirationDay,
@@ -615,11 +626,18 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
         tm localTime;
         localtime_s(&localTime, &now);
        
+        if (blank)
+            return ERROR_BLANCK_LICENSE;
+
         if (now > expirationTime)
             return ERROR_LICENSE_EXPIRED;
 
         if (activationtime > now)
             return ERROR_ACTIVATION_TIME;
     }
+
+    if (blank)
+        return ERROR_BLANCK_LICENSE;
+
     return ERROR_NOERROR;
 }

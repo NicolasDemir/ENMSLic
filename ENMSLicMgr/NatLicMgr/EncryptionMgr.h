@@ -43,6 +43,9 @@ public:
     string encrypt(const string& message) {
         string encrypted = "";
 
+        if (message.length() == 0)
+            return encrypted;
+
         for (char c : message) {
             if (isalpha(c)) {
                 char base = islower(c) ? 'a' : 'A';
@@ -58,11 +61,17 @@ public:
     }
 
     string decrypt(const string& input) {
+
+        string decrypted = "";
+
+        if (input.length() == 0)
+            return decrypted;
+
         string encrypted = hexToString(input);
         string extracted_salt = encrypted.substr(0, salt.size());
         string extracted_message = encrypted.substr(salt.size(), encrypted.size() - salt.size() - randomLength);
 
-        string decrypted = "";
+       
 
         for (char c : extracted_message) {
             if (isalpha(c)) {

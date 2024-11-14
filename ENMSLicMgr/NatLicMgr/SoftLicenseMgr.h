@@ -18,6 +18,7 @@ using namespace std;
 
 #define ERROR_LICENSE_EXPIRED  200
 #define ERROR_ACTIVATION_TIME  210
+#define ERROR_BLANCK_LICENSE   300
 
 
 const string g_entryMeters = "meters";

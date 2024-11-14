@@ -14,4 +14,8 @@
     <LocalDebuggerCommand>E:\ENMSLic\ENMSLicMgr\x64\Debug\ClientDotNet.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommand>E:\ENMSLic\ENMSLicMgr\x64\Release\ClientDotNet.exe</LocalDebuggerCommand>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>
