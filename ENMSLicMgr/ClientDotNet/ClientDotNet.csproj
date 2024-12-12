@@ -8,6 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <BaseOutputPath></BaseOutputPath>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <Version>1.1.2.0</Version>
   </PropertyGroup>
 
 </Project>

@@ -258,7 +258,6 @@
             Controls.Add(button3);
             FormBorderStyle = FormBorderStyle.Fixed3D;
             Name = "Form1";
-            Text = "DLL Tester - v1.1.1203";
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
             groupBox2.ResumeLayout(false);

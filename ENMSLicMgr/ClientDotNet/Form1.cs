@@ -15,6 +15,12 @@ namespace ClientDotNet
         public Form1()
         {
             InitializeComponent();
+
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            if(version != null)
+            Text = String.Format("Client.net version {0}.{1}.{2}.{3}", version.Major, version.Minor, version.Build, version.Revision);
+
+
             m_encryptMgr = new EncryptionManager();
             m_list.Columns.Add("Options");
             m_list.Columns.Add("Values");
