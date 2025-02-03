@@ -26,6 +26,7 @@
 #include "SoftLicenseMgr.h"
 #include "SoftKeyHelper.h"
 #include "LicGenDlg.h"
+#include "Licviewdlg.h"
 
 #include "afxdialogex.h"
 
@@ -112,6 +113,7 @@ BEGIN_MESSAGE_MAP(CLicGenDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_ENCRYPT2, &CLicGenDlg::OnBnClickedButtonEncrypt2)
     ON_BN_CLICKED(IDC_BUTTON_CHECK, &CLicGenDlg::OnBnClickedButtonCheck)
     ON_BN_CLICKED(IDC_BUTTON_IMPORT_SIGNATURE, &CLicGenDlg::OnBnClickedButtonImportSignature)
+    ON_BN_CLICKED(IDC_BUTTON_IMPORT_SIGNATURE2, &CLicGenDlg::OnBnClickedButtonImportSignature2)
 END_MESSAGE_MAP()
 
 
@@ -533,6 +535,18 @@ CString CLicGenDlg::GetEncryptedString(const CString& incput, BOOL bEncrypt )
     return StringToCString(szReturn);
 }
 
+CString CLicGenDlg::DecryptString(const CString& incput, cypherType nType)
+{
+    string sz = CStringToString(incput);
+    string szReturn;
+
+    CustomCypher cipher(nType);
+    szReturn = cipher.decrypt(sz);
+    return StringToCString(szReturn);
+}
+
+
+
 
 void CLicGenDlg::OnBnClickedButtonDecrypt()
 {
@@ -619,3 +633,54 @@ void CLicGenDlg::OnBnClickedButtonImportSignature()
         UpdateData(FALSE);
     }
 }
+
+
+void CLicGenDlg::OnBnClickedButtonImportSignature2()
+{
+    OPENFILENAME ofn;       // common dialog box structure
+    TCHAR szFile[260] = { 0 };       // buffer for file name
+
+    // Initialize OPENFILENAME
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFile = szFile;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = TEXT("All Files (*.dat)\0*.dat\0");
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+    // Display the Open dialog box
+    if (GetOpenFileName(&ofn) == TRUE)
+    {
+        CIniFile afile;
+        if (!afile.SetFileName(ofn.lpstrFile))
+            return;
+
+        CString s1, s2, t1, oz, e4, f1;
+
+        CString szSection= _T("Features");
+        afile.GetEntryValue(szSection, _T("S1"), s1);
+        afile.GetEntryValue(szSection, _T("S2"), s2);
+        afile.GetEntryValue(szSection, _T("T1"), t1);
+        afile.GetEntryValue(szSection, _T("OZ"), oz);
+        afile.GetEntryValue(szSection, _T("E4"), e4);
+        afile.GetEntryValue(szSection, _T("F1"), f1);
+
+        CLicViewDlg dlg;
+        dlg.m_S1 = DecryptString(s1, cypherType_generic);
+        dlg.m_S2 = DecryptString(s2, cypherType_generic);
+        dlg.m_T1 = DecryptString(t1, cypherType_generic);
+        if(oz.GetLength())
+            dlg.m_OZ = DecryptString(oz, cypherType_generic);
+        dlg.m_F1 = DecryptString(f1, cypherType_domain);
+        dlg.m_E4 = DecryptString(e4, cypherType_machine);
+
+        dlg.DoModal();
+    }
+}
+

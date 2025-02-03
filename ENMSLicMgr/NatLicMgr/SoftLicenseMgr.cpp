@@ -136,7 +136,7 @@ string CSoftLicenseMgr::GetOptions()
 int CSoftLicenseMgr::CheckFile(const string& filePath, const string& fileOutput)
 {
     string filename = fileOutput;
-    remove(filename.c_str());
+  //  remove(filename.c_str());
 
     ifstream file(filePath);
     if (!file.good())
@@ -189,29 +189,6 @@ int CSoftLicenseMgr::CheckFile(const string& filePath, const string& fileOutput)
 }
 
 
-bool CSoftLicenseMgr::RetrieveSystemInformation()
-{
-    /* m_sMachine = GetTargetName();
-     m_sMac = GetMacAddress();
-     m_sMacAdvanced = GetMacAddressAdvanced();
-
-     /*CString sDomain = GetDomain();
-     CString szCPU = GetCPUID();
-
-     CString SignatureSoft = m_sMachine + _T("|") + m_sVolume;
-     CString SignatureHard = m_sMac;
-
-     m_SoftSignature = EncryptedPassword(SignatureSoft);
-     m_HardSignature = EncryptedPassword(m_sMac);
-     m_HadSignatureAdvanced = EncryptedPassword(m_sMacAdvanced);
-
-     m_CRC = EncryptedPassword(SignatureSoft + m_sMac);
-
- */
-    return TRUE;
-}
-
-
 string CSoftLicenseMgr::GetMAcAdress(int& error)
 {
     string szreturn;
@@ -222,6 +199,7 @@ string CSoftLicenseMgr::GetMAcAdress(int& error)
     DWORD dwStatus = GetAdaptersInfo(AdapterInfo, &dwBufLen);
     if (dwStatus != ERROR_SUCCESS)
     {
+        WriteToFile("liclog.txt", "GetAdaptersInfo " + to_string(dwStatus));
         error = ERROR_RETRIEVING_FINGERPRINt;
         return szreturn;
     }
@@ -289,7 +267,9 @@ int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
     string sMACAdress = GetMAcAdress(error);
 
     if (error != ERROR_NOERROR)
+    {
         return error;
+    }
 
     //proceed signature
     istringstream currentfingerprint(sMACAdress);
@@ -318,7 +298,7 @@ int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
     for (int i = 0; i < tokenGiven.size(); i++)
     {
         bfind = false;
-
+    
         for (int j = 0; j < tokenCurrent.size(); j++)
         {
             if (tokenCurrent[j].compare(tokenGiven[i]) == 0)
@@ -336,13 +316,45 @@ int CSoftLicenseMgr::CompareFingerPrint(const string& szfingerprint)
     }
 
     if (nFind == 0)
+    {
+        string szGiven;
+        string szCurrent;
+
+        for (int i = 0; i < tokenGiven.size(); i++)
+        {
+            szGiven += tokenGiven[i] + "|";
+        }
+
+        for (int i = 0; i < tokenCurrent.size(); i++)
+        {
+            szCurrent += tokenCurrent[i] + "|";
+        }
+
+        WriteToFile("liclog.txt", "Invalid fingerprint\r\n" + szGiven + "\r\n" + szCurrent);
         return ERROR_FINGERPRINT;
+    }
 
     if(nNotfind == 0)
         return ERROR_NOERROR;
 
     if (nNotfind > nFind + 2)
+    {
+        string szGiven;
+        string szCurrent;
+
+        for (int i = 0; i < tokenGiven.size(); i++)
+        {
+            szGiven += tokenGiven[i] + "|";
+        }
+
+        for (int i = 0; i < tokenCurrent.size(); i++)
+        {
+            szCurrent += tokenCurrent[i] + "|";
+        }
+
+        WriteToFile("liclog.txt", "Invalid fingerprint +\r\n" + szGiven + "\r\n" + szCurrent);   
         return ERROR_FINGERPRINT;
+    }
 
     return ERROR_PARTIAL_FINGERPRINT;
 }
@@ -394,7 +406,7 @@ int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint, const 
 {
     if (szfingerprint.length() == 0)
         return ERROR_INVALIDFILE;
-
+       
     //proceed signature
     istringstream ss(szfingerprint);
     string token;
@@ -406,12 +418,18 @@ int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint, const 
     }
 
     size_t ts = tokens.size();
-
+   
     if (ts < 3)
+    {
+        WriteToFile("liclog.txt", "Invalid file - ts3");
         return ERROR_INVALIDFILE;
+    }
 
     if (tokens[0].compare("fig1") != 0)
+    {
+        WriteToFile("liclog.txt", "Invalid file - fig1");
         return ERROR_INVALIDFILE;
+    }
 
     int nSigVersion = 0;
 
@@ -421,6 +439,7 @@ int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint, const 
     }
     catch (...)
     {
+        WriteToFile("liclog.txt", "Invalid file - Exception");
         return ERROR_INVALIDFILE;
     }
 
@@ -448,16 +467,33 @@ int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint, const 
         errorDomaine = ERROR_DOMAIN;
     }
 
+    istringstream ssCPU(szcpu);
+    string tokenCPU;
+    vector<string> tokenCPUs;
+
+    while (getline(ssCPU, tokenCPU, ';'))
+    {
+        tokenCPUs.push_back(tokenCPU);
+    }
+
+    size_t tsCPU = tokens.size();
+
+    if (tsCPU < 3)
+    {
+        WriteToFile("liclog.txt", "Invalid file - tsCPU");
+        return ERROR_INVALIDFILE;
+    }
+
     //CPU
     int errorCPU = ERROR_NOERROR;
 
     if (szcpu.length())
     {
-    std::string szCurrentCPU = getCPU();
-    if (szCurrentCPU.compare(szcpu) != 0)
-    {
-        errorCPU = ERROR_CPU;
-    }
+        std::string szCurrentCPU = getCPU();
+        if (szCurrentCPU.compare(tokenCPUs[2]) != 0)
+        {
+            errorCPU = ERROR_CPU;
+        }
     }
 
     if (errorFingerPrint == ERROR_NOERROR)
@@ -467,30 +503,50 @@ int CSoftLicenseMgr::CheckMachineFingerPrint(const string& szfingerprint, const 
 
         if (bMAchineOK || bCPUOK)
             return ERROR_NOERROR;
+    
+         WriteToFile("liclog.txt", "Machine & domain " + szdomain + "-" + szCurrentDomain + "-" + szmachine + "-" + szCurrentMachine);
     }
     else
     {
-            if ((errorMachine == ERROR_NOERROR) && (errorCPU == ERROR_NOERROR))
+        if ((errorMachine == ERROR_NOERROR) && (errorCPU == ERROR_NOERROR))
                 return ERROR_NOERROR;
 
         if (szdomain.length())
         {
             if ((errorMachine == ERROR_NOERROR) && (errorDomaine == ERROR_NOERROR))
-                return ERROR_NOERROR;
+                  return ERROR_NOERROR;
 
             if ((errorCPU == ERROR_NOERROR) && (errorDomaine == ERROR_NOERROR))
                 return ERROR_NOERROR;
         }
+
+        WriteToFile("liclog.txt", "fingerprint + Machine | cpu - " + szcpu + " - " + getCPU() + " - " + szmachine + " - " + szCurrentMachine);
     }
 
     return ERROR_FINGERPRINT;
+}
+
+
+int CSoftLicenseMgr::WriteToFile(string szFile, string szContent)
+{
+    ifstream f(szFile.c_str());
+    {
+        if (!f.good())
+            return -1;
+    }
+    
+    ofstream myfile;
+    myfile.open(szFile);
+    myfile << szContent + "\n";
+    myfile.close();
+    return 0;
 }
 
 int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileouput, _LicOptions& options, bool version1)
 {
     string szBLANK = "BLANK";
 
-    std::remove(fileouput.c_str());
+    //std::remove(fileouput.c_str());
 
     int error = ERROR_NOERROR;
     bool blank = false;
@@ -577,7 +633,7 @@ int CSoftLicenseMgr::CheckoutLicense(const string& szpath, const string& fileoup
                     {
                         CustomCypher cipher;
                         szCPU = cipher.decrypt(entry.second);
-                }
+                    }
                 };
             }
         }

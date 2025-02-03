@@ -57,6 +57,9 @@
     <ClInclude Include="licenseerror.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LicViewDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LicGen.cpp">
@@ -84,6 +87,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SoftLicenseMgr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LicViewDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

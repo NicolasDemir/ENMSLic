@@ -11,7 +11,7 @@ enum cypherType
 {
     cypherType_machine = 0,
     cypherType_domain = 1,
-
+    cypherType_generic = 100
 };
 
 class CustomCypher {

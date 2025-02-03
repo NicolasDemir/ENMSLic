@@ -32,6 +32,7 @@ extern "C" __declspec(dllexport) int CheckOut(char* query, char* presponse, char
 {
 	string afile = filepath;
 	string afileOutput = "liclog.txt";
+	
 
 	CSoftLicenseMgr helper;
 	_LicOptions options;

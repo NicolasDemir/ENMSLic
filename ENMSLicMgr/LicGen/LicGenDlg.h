@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+enum cypherType;
 
 // CLicGenDlg dialog
 class CLicGenDlg : public CDialogEx
@@ -26,7 +26,7 @@ public:
 	BOOL WriteSignatureToFile(CString szfile, CSoftKeyHelper& akey);
 	CString GetUserSelectedFolder();
 	CString GetEncryptedString(const CString& incput, BOOL bEncrypt = TRUE);
-
+	CString DecryptString(const CString& incput, cypherType nType);
 
 	void OpenFileLocation(const CString& szFilePath);
 
@@ -62,4 +62,5 @@ public:
 	afx_msg void OnBnClickedButtonEncrypt2();
 	afx_msg void OnBnClickedButtonCheck();
 	afx_msg void OnBnClickedButtonImportSignature();
+	afx_msg void OnBnClickedButtonImportSignature2();
 };

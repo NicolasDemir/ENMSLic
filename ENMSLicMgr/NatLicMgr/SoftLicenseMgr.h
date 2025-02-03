@@ -83,9 +83,10 @@ public:
     string getComputerDomain();
     string getCPU();
     string GetMAcAdress(int& error);
-    bool RetrieveSystemInformation();
     int ExtractOptions(const string& szoptions, int& meters, int& users, int& connections, int& product, int& update, int& version, int& tempo, int& duration, int& expYear, int& expMonth, int& expDay, int& startYear, int& startMonth, int& startDay);
+    int WriteToFile(string szFile, string szContent);
     string GetOptions();
+    string GetProcessDirectory();
 
     _LicOptions m_licfeatures;
 };
